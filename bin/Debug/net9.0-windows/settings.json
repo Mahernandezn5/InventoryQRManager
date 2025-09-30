@@ -1,0 +1,18 @@
+{
+  "CompanyName": "Zocalo",
+  "DefaultCategory": "Otros",
+  "DefaultLocation": "Almac\u00E9n Principal",
+  "LowStockThreshold": 10,
+  "AutoGenerateQR": true,
+  "ShowNotifications": true,
+  "Language": "es",
+  "Theme": "Light",
+  "AutoBackup": true,
+  "BackupIntervalDays": 7,
+  "BackupLocation": "",
+  "ShowWelcomeScreen": true,
+  "GridPageSize": 40,
+  "EnableAuditLog": true,
+  "CustomCategories": [],
+  "CustomLocations": []
+}
