@@ -1,0 +1,32 @@
+[
+  {
+    "Index": 0,
+    "Timestamp": "2025-09-30T19:22:47.9123748-03:00",
+    "PreviousHash": "0",
+    "Hash": "0000483e3f3a222f6454e8a91d4354cef5f30cfcefa3c4e3a21ff2cf19ff81ff",
+    "Data": "{\r\n  \"TransactionId\": \"73bf38dc-cdbf-407d-aa4b-0ae8ce3397b9\",\r\n  \"ItemId\": \"GENESIS\",\r\n  \"ItemSKU\": \"GENESIS\",\r\n  \"ItemName\": \"Bloque Génesis del Sistema de Inventario\",\r\n  \"Type\": 0,\r\n  \"QuantityChange\": 0,\r\n  \"PreviousQuantity\": 0,\r\n  \"NewQuantity\": 0,\r\n  \"Location\": \"Sistema\",\r\n  \"UserId\": \"SYSTEM\",\r\n  \"UserName\": \"Sistema\",\r\n  \"Timestamp\": \"2025-09-30T19:22:47.8605203-03:00\",\r\n  \"Reason\": \"\",\r\n  \"Notes\": \"Bloque inicial del blockchain de inventario\",\r\n  \"Price\": 0.0,\r\n  \"Category\": \"Sistema\",\r\n  \"Signature\": \"\"\r\n}",
+    "Nonce": 19634,
+    "MerkleRoot": "af231037d65060d51978d18e8490a06a3624ad5cf1ccf37f03c407f27c37ff26",
+    "Difficulty": 4
+  },
+  {
+    "Index": 1,
+    "Timestamp": "2025-09-30T20:37:25.9713998-03:00",
+    "PreviousHash": "0000483e3f3a222f6454e8a91d4354cef5f30cfcefa3c4e3a21ff2cf19ff81ff",
+    "Hash": "0000c9f6c0eee6f5e633c929545e9aa5182bf81f4e154d91eb9377b66c5ebc8e",
+    "Data": "{\"miner\":\"Usuario: IVI\",\"transactions\":[{\"TransactionId\":\"93aca0e3-c422-4f4f-b61b-c196e113eac3\",\"ItemId\":\"24\",\"ItemSKU\":\"BOOK006\",\"ItemName\":\"Libro Clean Code\",\"Type\":1,\"QuantityChange\":0,\"PreviousQuantity\":25,\"NewQuantity\":25,\"Location\":\"Oficina\",\"UserId\":\"IVI\",\"UserName\":\"IVI\",\"Timestamp\":\"2025-09-30T20:37:25.9647571-03:00\",\"Reason\":\"Actualización manual\",\"Notes\":\"Item actualizado desde interfaz\",\"Price\":0.0,\"Category\":\"\",\"Signature\":\"82f56b61390965e681df8feaeecaf6651fff9cb1488886bdf53014c9aecb913c\"}]}",
+    "Nonce": 39503,
+    "MerkleRoot": "7644df40a7065efc1cce5f5751a7ee375b4f8794ff9e00cb3b82c5bababfed28",
+    "Difficulty": 4
+  },
+  {
+    "Index": 2,
+    "Timestamp": "2025-09-30T20:38:17.6723021-03:00",
+    "PreviousHash": "0000c9f6c0eee6f5e633c929545e9aa5182bf81f4e154d91eb9377b66c5ebc8e",
+    "Hash": "0000ddfeaca638d2c265e64b2a0426f36cfb79b250d02a50a1f6fd78439394e3",
+    "Data": "{\"miner\":\"Usuario: IVI\",\"transactions\":[{\"TransactionId\":\"279e1ee3-a036-4390-89d2-067b0dc89621\",\"ItemId\":\"25\",\"ItemSKU\":\"CHAIR007\",\"ItemName\":\"Silla de Oficina Ergonómica\",\"Type\":1,\"QuantityChange\":0,\"PreviousQuantity\":3,\"NewQuantity\":3,\"Location\":\"Oficina\",\"UserId\":\"IVI\",\"UserName\":\"IVI\",\"Timestamp\":\"2025-09-30T20:38:17.6721952-03:00\",\"Reason\":\"Actualización manual\",\"Notes\":\"Item actualizado desde interfaz\",\"Price\":0.0,\"Category\":\"\",\"Signature\":\"5716db2a44be08f818cac5aabbfdfbdb514ec25dfc5dac0aafa8748e9fedf66a\"}]}",
+    "Nonce": 25554,
+    "MerkleRoot": "649634069c5b559f6c1b6b6b73c4c0e9237235265587cef1c839053593a124cc",
+    "Difficulty": 4
+  }
+]

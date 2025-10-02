@@ -142,7 +142,7 @@ namespace InventoryQRManager.Services
             }
             catch (Exception ex)
             {
-                // Log the exception for debugging
+               
                 System.Diagnostics.Debug.WriteLine($"Error adding item: {ex.Message}");
                 throw new Exception($"Error agregando item: {ex.Message}");
             }
@@ -178,9 +178,9 @@ namespace InventoryQRManager.Services
             }
             catch (Exception ex)
             {
-                // Log the exception for debugging
+               
                 System.Diagnostics.Debug.WriteLine($"Error updating item: {ex.Message}");
-                throw; // Re-throw to allow proper error handling in the UI
+                throw; 
             }
         }
 

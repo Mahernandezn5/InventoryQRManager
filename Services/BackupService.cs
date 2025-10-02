@@ -65,17 +65,17 @@ namespace InventoryQRManager.Services
                     throw new Exception("El archivo de backup está corrupto o vacío.");
                 }
 
-                // Crear backup de seguridad antes de restaurar
+                
                 var safetyBackupPath = Path.Combine(
                     Path.GetDirectoryName(filePath) ?? "",
                     $"safety_backup_{DateTime.Now:yyyyMMdd_HHmmss}.json"
                 );
                 CreateBackup(safetyBackupPath);
 
-                // Limpiar datos existentes
+                
                 ClearAllData();
 
-                // Restaurar datos
+                
                 foreach (var item in backupData.Items)
                 {
                     InsertItemFromBackup(item);
@@ -97,10 +97,10 @@ namespace InventoryQRManager.Services
                 
                 using var writer = new StreamWriter(filePath);
                 
-                // Escribir encabezados
+                
                 writer.WriteLine("ID,Nombre,Descripción,SKU,Código QR,Cantidad,Precio,Categoría,Ubicación,Fecha Creación,Última Actualización");
 
-                // Escribir datos
+                
                 foreach (var item in items)
                 {
                     writer.WriteLine($"{item.Id},\"{item.Name}\",\"{item.Description}\",{item.SKU},{item.QRCode},{item.Quantity},{item.Price},\"{item.Category}\",\"{item.Location}\",{item.CreatedDate:yyyy-MM-dd HH:mm:ss},{item.LastUpdated:yyyy-MM-dd HH:mm:ss}");
@@ -129,7 +129,7 @@ namespace InventoryQRManager.Services
                     throw new Exception("El archivo CSV está vacío o no tiene el formato correcto.");
                 }
 
-                // Crear backup antes de importar
+                
                 var backupPath = Path.Combine(
                     Path.GetDirectoryName(filePath) ?? "",
                     $"pre_import_backup_{DateTime.Now:yyyyMMdd_HHmmss}.json"
@@ -139,7 +139,7 @@ namespace InventoryQRManager.Services
                 var importedCount = 0;
                 var errorCount = 0;
 
-                // Procesar cada línea (saltar encabezados)
+                
                 for (int i = 1; i < lines.Length; i++)
                 {
                     try

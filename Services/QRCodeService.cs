@@ -10,7 +10,7 @@ namespace InventoryQRManager.Services
     {
         public QRCodeService()
         {
-            // Constructor simplificado - no inicializar writer aquí
+           
         }
 
         public Bitmap GenerateQRCode(string text)
@@ -22,23 +22,22 @@ namespace InventoryQRManager.Services
                     throw new ArgumentException("El texto para generar el código QR no puede estar vacío.");
                 }
 
-                // Usar QRCoder que es más estable con .NET 9
                 using (var qrGenerator = new QRCodeGenerator())
                 {
                     var qrCodeData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
                     using (var qrCode = new QRCode(qrCodeData))
                     {
-                        var qrCodeImage = qrCode.GetGraphic(20); // 20 pixels per module
+                        var qrCodeImage = qrCode.GetGraphic(20); 
                         return new Bitmap(qrCodeImage);
                     }
                 }
             }
             catch (Exception ex)
             {
-                // Log del error para debugging
+               
                 System.Diagnostics.Debug.WriteLine($"Error generando QR con QRCoder: {ex}");
                 
-                // Crear un bitmap simple como último recurso
+                
                 try
                 {
                     var fallbackBitmap = new Bitmap(150, 150);
@@ -63,13 +62,13 @@ namespace InventoryQRManager.Services
 
         public string ReadQRCode(Bitmap image)
         {
-            // Funcionalidad de lectura simplificada
+            
             return "Funcionalidad de lectura en desarrollo";
         }
 
         public string ReadQRCodeFromFile(string filePath)
         {
-            // Funcionalidad de lectura simplificada
+           
             return "Funcionalidad de lectura en desarrollo";
         }
 
@@ -89,7 +88,6 @@ namespace InventoryQRManager.Services
 
         public string GenerateUniqueQRCode(string sku, string name)
         {
-            // Generar un código QR único basado en SKU, nombre y timestamp
             var timestamp = DateTime.Now.Ticks;
             var uniqueText = $"INV-{sku}-{name.Replace(" ", "_")}-{timestamp}";
             return uniqueText;
@@ -97,7 +95,7 @@ namespace InventoryQRManager.Services
 
         public bool ValidateQRCode(string qrCode)
         {
-            // Validar que el código QR tenga el formato esperado
+            
             return !string.IsNullOrEmpty(qrCode) && qrCode.StartsWith("INV-");
         }
     }

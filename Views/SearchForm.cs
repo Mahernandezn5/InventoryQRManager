@@ -23,19 +23,15 @@ namespace InventoryQRManager.Views
             
             InitializeComponent();
             
-            // Cargar categorías y ubicaciones después de que se hayan configurado los controles
             LoadCategoriesAndLocations();
             
-            // Configurar evento Load para centrar contenido cuando el formulario esté listo
             this.Load += SearchForm_Load;
             
-            // Cargar todos los items inicialmente
             LoadInitialData();
         }
         
         private void SearchForm_Load(object sender, EventArgs e)
         {
-            // Centrar contenido cuando el formulario esté completamente cargado
             if (dataGridView != null && dataGridView.Rows.Count > 0)
             {
                 CenterContent();
@@ -46,7 +42,6 @@ namespace InventoryQRManager.Views
         {
             this.SuspendLayout();
             
-            // Configurar el formulario
             this.Text = "Búsqueda Avanzada de Inventario";
             this.Size = new Size(1000, 700);
             this.StartPosition = FormStartPosition.CenterParent;
@@ -62,7 +57,6 @@ namespace InventoryQRManager.Views
 
         private void CreateControls()
         {
-            // Panel de búsqueda
             var searchPanel = new Panel();
             searchPanel.Dock = DockStyle.Top;
             searchPanel.Height = 160;
@@ -70,7 +64,6 @@ namespace InventoryQRManager.Views
             searchPanel.Padding = new Padding(20);
             this.Controls.Add(searchPanel);
 
-            // Título
             var titleLabel = new Label();
             titleLabel.Text = "Búsqueda Avanzada";
             titleLabel.Font = new Font("Arial", 14, FontStyle.Bold);
@@ -78,7 +71,6 @@ namespace InventoryQRManager.Views
             titleLabel.Size = new Size(200, 25);
             searchPanel.Controls.Add(titleLabel);
 
-            // Campo de búsqueda
             var searchLabel = new Label();
             searchLabel.Text = "Buscar:";
             searchLabel.Location = new Point(20, 55);
@@ -93,7 +85,6 @@ namespace InventoryQRManager.Views
             searchTextBox.TextChanged += SearchTextBox_TextChanged;
             searchPanel.Controls.Add(searchTextBox);
 
-            // Botón buscar
             var searchButton = new Button();
             searchButton.Text = "Buscar";
             searchButton.Location = new Point(400, 51);
@@ -102,7 +93,6 @@ namespace InventoryQRManager.Views
             searchButton.Click += SearchButton_Click;
             searchPanel.Controls.Add(searchButton);
 
-            // Filtros
             var categoryLabel = new Label();
             categoryLabel.Text = "Categoría:";
             categoryLabel.Location = new Point(500, 55);
@@ -137,7 +127,6 @@ namespace InventoryQRManager.Views
             locationComboBox.SelectedIndexChanged += Filter_Changed;
             searchPanel.Controls.Add(locationComboBox);
 
-            // Stock bajo
             lowStockCheckBox = new CheckBox();
             lowStockCheckBox.Text = "Solo stock bajo";
             lowStockCheckBox.Location = new Point(250, 95);
@@ -146,7 +135,6 @@ namespace InventoryQRManager.Views
             lowStockCheckBox.CheckedChanged += Filter_Changed;
             searchPanel.Controls.Add(lowStockCheckBox);
 
-            // Botón limpiar
             var clearButton = new Button();
             clearButton.Text = "Limpiar";
             clearButton.Location = new Point(500, 91);
@@ -155,14 +143,12 @@ namespace InventoryQRManager.Views
             clearButton.Click += ClearButton_Click;
             searchPanel.Controls.Add(clearButton);
 
-            // Panel de resultados
             var resultsPanel = new Panel();
             resultsPanel.Dock = DockStyle.Fill;
             resultsPanel.BackColor = Color.White;
             resultsPanel.Padding = new Padding(10, 5, 10, 5);
             this.Controls.Add(resultsPanel);
 
-            // DataGridView
             dataGridView = new DataGridView();
             dataGridView.Dock = DockStyle.Fill;
             dataGridView.Margin = new Padding(5);
@@ -174,7 +160,6 @@ namespace InventoryQRManager.Views
             dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
             dataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             
-            // Mejorar el centrado y apariencia
             dataGridView.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             dataGridView.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             dataGridView.RowHeadersVisible = false;
@@ -184,30 +169,25 @@ namespace InventoryQRManager.Views
             dataGridView.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
             dataGridView.EnableHeadersVisualStyles = false;
             
-            // Asegurar visibilidad
             dataGridView.Visible = true;
             dataGridView.BackgroundColor = Color.White;
             dataGridView.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(240, 240, 240);
             
-            // Configurar para mostrar todas las filas correctamente
             dataGridView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
             dataGridView.RowTemplate.Height = 25;
             dataGridView.DefaultCellStyle.SelectionBackColor = Color.FromArgb(41, 128, 185);
             dataGridView.DefaultCellStyle.SelectionForeColor = Color.White;
             
-            // Configurar columnas inmediatamente
             SetupDataGridViewColumns();
             
             resultsPanel.Controls.Add(dataGridView);
 
-            // Panel de botones
             var buttonPanel = new Panel();
             buttonPanel.Dock = DockStyle.Bottom;
             buttonPanel.Height = 50;
             buttonPanel.BackColor = Color.LightGray;
             this.Controls.Add(buttonPanel);
 
-            // Botones
             var selectButton = new Button();
             selectButton.Text = "Seleccionar";
             selectButton.Location = new Point(20, 12);
@@ -229,7 +209,6 @@ namespace InventoryQRManager.Views
             closeButton.Click += CloseButton_Click;
             buttonPanel.Controls.Add(closeButton);
 
-            // Label de resultados
             resultsLabel = new Label();
             resultsLabel.Text = "Resultados: 0 items";
             resultsLabel.Location = new Point(240, 18);
@@ -251,14 +230,11 @@ namespace InventoryQRManager.Views
             dataGridView.Columns.Add("Location", "Ubicación");
             dataGridView.Columns.Add("CreatedDate", "Fecha Creación");
             
-            // Ocultar columna ID
             dataGridView.Columns["Id"].Visible = false;
             
-            // Formatear columnas
             dataGridView.Columns["Price"].DefaultCellStyle.Format = "C2";
             dataGridView.Columns["CreatedDate"].DefaultCellStyle.Format = "dd/MM/yyyy";
             
-            // Configurar anchos fijos para evitar problemas con FillWeight
             dataGridView.Columns["Name"].Width = 200;
             dataGridView.Columns["SKU"].Width = 100;
             dataGridView.Columns["Quantity"].Width = 80;
@@ -272,19 +248,17 @@ namespace InventoryQRManager.Views
         {
             if (categoryComboBox == null || locationComboBox == null)
             {
-                return; // No cargar si los controles no están configurados
+                return; 
             }
             
             var inventoryService = new InventoryService();
             
-            // Cargar categorías
             categoryComboBox.Items.Clear();
             categoryComboBox.Items.Add("Todas");
             var categories = inventoryService.GetCategories();
             categoryComboBox.Items.AddRange(categories.ToArray());
             categoryComboBox.SelectedIndex = 0;
 
-            // Cargar ubicaciones
             locationComboBox.Items.Clear();
             locationComboBox.Items.Add("Todas");
             var locations = inventoryService.GetLocations();
@@ -299,27 +273,22 @@ namespace InventoryQRManager.Views
                 var inventoryService = new InventoryService();
                 _searchResults = inventoryService.GetAllItems();
                 
-                // Refrescar la tabla con los datos iniciales
                 if (dataGridView != null && dataGridView.Columns.Count > 0)
                 {
                     RefreshDataGridView();
                     UpdateResultsLabel();
                     
-                    // Asegurar que la tabla muestre desde el inicio
                     EnsureTableVisible();
                     
-                    // Centrar el contenido después de un breve delay (solo si el control está listo)
                     if (this.IsHandleCreated)
                     {
                         this.BeginInvoke(new Action(() => CenterContent()));
                     }
                     else
                     {
-                        // Si el handle no está creado, centrar directamente
                         CenterContent();
                     }
                     
-                    // Forzar actualización completa del formulario
                     this.Invalidate();
                     this.Update();
                 }
@@ -336,28 +305,22 @@ namespace InventoryQRManager.Views
             {
                 if (dataGridView != null && dataGridView.Rows.Count > 0)
                 {
-                    // Asegurar que la primera fila sea visible
                     dataGridView.FirstDisplayedScrollingRowIndex = 0;
                     
-                    // Limpiar cualquier selección previa
                     dataGridView.ClearSelection();
                     
-                    // Seleccionar la primera fila si es posible
                     if (dataGridView.Rows[0].Cells.Count > 0)
                     {
                         dataGridView.Rows[0].Selected = true;
                         dataGridView.CurrentCell = dataGridView.Rows[0].Cells[0];
                     }
                     
-                    // Forzar actualización del layout y scroll
                     dataGridView.PerformLayout();
                     dataGridView.Refresh();
                     dataGridView.Update();
                     
-                    // Asegurar que el scroll esté en la posición correcta
                     dataGridView.FirstDisplayedScrollingRowIndex = 0;
                     
-                    // Forzar redibujado del panel contenedor
                     if (dataGridView.Parent != null)
                     {
                         dataGridView.Parent.Invalidate();
@@ -375,27 +338,21 @@ namespace InventoryQRManager.Views
         {
             try
             {
-                // Verificar que el DataGridView esté completamente inicializado
                 if (dataGridView != null && dataGridView.IsHandleCreated && dataGridView.Rows.Count > 0)
                 {
-                    // Asegurar que la primera fila sea visible
                     dataGridView.FirstDisplayedScrollingRowIndex = 0;
                     
-                    // Limpiar selección
                     dataGridView.ClearSelection();
                     
-                    // Seleccionar primera fila
                     if (dataGridView.Rows[0].Cells.Count > 0)
                     {
                         dataGridView.Rows[0].Selected = true;
                         dataGridView.CurrentCell = dataGridView.Rows[0].Cells[0];
                     }
                     
-                    // Forzar actualización visual
                     dataGridView.PerformLayout();
                     dataGridView.Refresh();
                     
-                    // Asegurar que el panel contenedor también se actualice
                     if (dataGridView.Parent != null && dataGridView.Parent.IsHandleCreated)
                     {
                         dataGridView.Parent.PerformLayout();
@@ -411,7 +368,6 @@ namespace InventoryQRManager.Views
 
         private void SearchTextBox_TextChanged(object sender, EventArgs e)
         {
-            // Búsqueda en tiempo real
             if (dataGridView != null && dataGridView.Columns.Count > 0)
             {
                 PerformSearch();
@@ -424,10 +380,8 @@ namespace InventoryQRManager.Views
             {
                 if (dataGridView != null && dataGridView.Columns.Count > 0)
                 {
-                    // Aplicar todos los filtros (incluyendo búsqueda de texto)
                     ApplyFilters();
                     
-                    // Refrescar la tabla
                     RefreshDataGridView();
                     UpdateResultsLabel();
                 }
@@ -450,7 +404,7 @@ namespace InventoryQRManager.Views
         {
             if (searchTextBox == null || categoryComboBox == null || locationComboBox == null || lowStockCheckBox == null)
             {
-                return; // No limpiar si los controles no están configurados
+                return; 
             }
             
             searchTextBox.Clear();
@@ -537,10 +491,8 @@ namespace InventoryQRManager.Views
         {
             try
             {
-                // Aplicar todos los filtros (incluyendo búsqueda de texto)
                 ApplyFilters();
 
-                // Solo refrescar si el DataGridView está configurado
                 if (dataGridView != null && dataGridView.Columns.Count > 0)
                 {
                     RefreshDataGridView();
@@ -559,14 +511,13 @@ namespace InventoryQRManager.Views
             {
                 if (categoryComboBox == null || locationComboBox == null || lowStockCheckBox == null)
                 {
-                    return; // No aplicar filtros si los controles no están configurados
+                    return; 
                 }
                 
-                // Obtener todos los items para aplicar filtros desde cero
+                
                 var inventoryService = new InventoryService();
                 var allItems = inventoryService.GetAllItems();
                 
-                // Aplicar búsqueda de texto si existe
                 var searchTerm = searchTextBox?.Text?.Trim() ?? string.Empty;
                 if (!string.IsNullOrEmpty(searchTerm))
                 {
@@ -577,21 +528,18 @@ namespace InventoryQRManager.Views
                     ).ToList();
                 }
                 
-                // Aplicar filtros de categoría
                 if (categoryComboBox.SelectedIndex > 0)
                 {
                     var selectedCategory = categoryComboBox.SelectedItem.ToString();
                     allItems = allItems.Where(item => item.Category == selectedCategory).ToList();
                 }
 
-                // Aplicar filtros de ubicación
                 if (locationComboBox.SelectedIndex > 0)
                 {
                     var selectedLocation = locationComboBox.SelectedItem.ToString();
                     allItems = allItems.Where(item => item.Location == selectedLocation).ToList();
                 }
 
-                // Aplicar filtro de stock bajo
                 if (lowStockCheckBox.Checked)
                 {
                     var settingsService = new SettingsService();
@@ -599,7 +547,6 @@ namespace InventoryQRManager.Views
                     allItems = allItems.Where(item => item.Quantity <= threshold).ToList();
                 }
                 
-                // Actualizar los resultados finales
                 _searchResults = allItems;
             }
             catch (Exception ex)
@@ -614,13 +561,11 @@ namespace InventoryQRManager.Views
             {
                 if (dataGridView == null || dataGridView.Columns.Count == 0)
                 {
-                    return; // No refrescar si el DataGridView no está configurado
+                    return; 
                 }
                 
-                // Limpiar filas existentes
                 dataGridView.Rows.Clear();
                 
-                // Agregar filas con los resultados
                 foreach (var item in _searchResults)
                 {
                     if (item != null)
@@ -638,54 +583,44 @@ namespace InventoryQRManager.Views
                     }
                 }
                 
-                // Forzar actualización visual y layout
                 dataGridView.Refresh();
                 dataGridView.Update();
                 dataGridView.Invalidate();
                 
-                // Asegurar que la primera fila sea visible si hay resultados
                 if (_searchResults.Count > 0 && dataGridView.Rows.Count > 0)
                 {
                     try
                     {
-                        // Forzar scroll a la primera fila
                         dataGridView.FirstDisplayedScrollingRowIndex = 0;
                         
-                        // Limpiar selección actual
                         dataGridView.ClearSelection();
                         
-                        // Solo establecer la celda actual si hay filas y columnas válidas
                         if (dataGridView.Rows[0].Cells.Count > 0)
                         {
                             dataGridView.CurrentCell = dataGridView.Rows[0].Cells[0];
                             dataGridView.Rows[0].Selected = true;
                         }
                         
-                        // Forzar actualización del scroll
                         dataGridView.PerformLayout();
                     }
                     catch (Exception ex)
                     {
-                        // Si hay error al establecer la celda actual, solo logear y continuar
                         System.Diagnostics.Debug.WriteLine($"Error estableciendo celda actual: {ex.Message}");
                     }
                 }
                 
-                // Forzar redibujado del panel contenedor
                 if (dataGridView.Parent != null)
                 {
                     dataGridView.Parent.Invalidate();
                     dataGridView.Parent.Update();
                 }
                 
-                // Centrar el contenido después de refrescar (solo si el control está listo)
                 if (this.IsHandleCreated)
                 {
                     this.BeginInvoke(new Action(() => CenterContent()));
                 }
                 else
                 {
-                    // Si el handle no está creado, centrar directamente
                     CenterContent();
                 }
             }
@@ -699,7 +634,7 @@ namespace InventoryQRManager.Views
         {
             if (resultsLabel == null)
             {
-                return; // No actualizar si el label no está configurado
+                return; 
             }
             
             resultsLabel.Text = $"Resultados: {_searchResults.Count} items";
@@ -709,22 +644,20 @@ namespace InventoryQRManager.Views
         {
             if (items == null || items.Count == 0)
             {
-                return; // No exportar si no hay items
+                return; 
             }
             
             using var writer = new System.IO.StreamWriter(filePath);
             
-            // Escribir encabezados
+           
             writer.WriteLine("Nombre,Descripción,SKU,Código QR,Cantidad,Precio,Categoría,Ubicación,Fecha Creación");
 
-            // Escribir datos
             foreach (var item in items)
             {
                 writer.WriteLine($"{item.Name},{item.Description},{item.SKU},{item.QRCode},{item.Quantity},{item.Price},{item.Category},{item.Location},{item.CreatedDate:yyyy-MM-dd HH:mm:ss}");
             }
         }
 
-        // Controles
         private TextBox searchTextBox;
         private ComboBox categoryComboBox;
         private ComboBox locationComboBox;

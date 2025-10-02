@@ -8,36 +8,36 @@ namespace InventoryQRManager.Services
     {
         public class ProfessionalTheme
         {
-            // Colores principales
+           
             public Color PrimaryColor { get; set; } = Color.FromArgb(41, 128, 185);      // Azul profesional
             public Color SecondaryColor { get; set; } = Color.FromArgb(52, 73, 94);     // Gris oscuro elegante
             public Color AccentColor { get; set; } = Color.FromArgb(46, 204, 113);      // Verde éxito
             public Color WarningColor { get; set; } = Color.FromArgb(230, 126, 34);     // Naranja advertencia
             public Color DangerColor { get; set; } = Color.FromArgb(231, 76, 60);       // Rojo peligro
             
-            // Colores de fondo
+            
             public Color BackgroundColor { get; set; } = Color.FromArgb(248, 249, 250); // Gris muy claro
             public Color PanelBackgroundColor { get; set; } = Color.FromArgb(255, 255, 255); // Blanco
             public Color HeaderBackgroundColor { get; set; } = Color.FromArgb(52, 73, 94); // Gris oscuro
             public Color MenuBackgroundColor { get; set; } = Color.FromArgb(236, 240, 241); // Gris claro
             
-            // Colores de texto
+            
             public Color TextColor { get; set; } = Color.FromArgb(44, 62, 80);          // Azul oscuro
             public Color HeaderTextColor { get; set; } = Color.FromArgb(255, 255, 255); // Blanco
             public Color SecondaryTextColor { get; set; } = Color.FromArgb(127, 140, 141); // Gris medio
             public Color LinkColor { get; set; } = Color.FromArgb(41, 128, 185);        // Azul profesional
             
-            // Colores de bordes
+            
             public Color BorderColor { get; set; } = Color.FromArgb(189, 195, 199);     // Gris claro
             public Color SeparatorColor { get; set; } = Color.FromArgb(149, 165, 166);  // Gris medio
             
-            // Colores de estado
+           
             public Color SuccessColor { get; set; } = Color.FromArgb(46, 204, 113);     // Verde
             public Color InfoColor { get; set; } = Color.FromArgb(52, 152, 219);        // Azul claro
             public Color LightColor { get; set; } = Color.FromArgb(236, 240, 241);      // Gris muy claro
             public Color DarkColor { get; set; } = Color.FromArgb(44, 62, 80);          // Azul oscuro
             
-            // Colores de hover y selección
+            
             public Color HoverColor { get; set; } = Color.FromArgb(189, 195, 199);      // Gris claro
             public Color SelectedColor { get; set; } = Color.FromArgb(41, 128, 185);    // Azul profesional
             public Color FocusColor { get; set; } = Color.FromArgb(52, 152, 219);       // Azul claro
@@ -61,11 +61,11 @@ namespace InventoryQRManager.Services
         {
             var theme = CurrentTheme;
             
-            // Aplicar tema al formulario principal
+            
             form.BackColor = theme.BackgroundColor;
             form.ForeColor = theme.TextColor;
             
-            // Aplicar tema a todos los controles
+            
             ApplyThemeToControls(form.Controls, theme);
         }
 
@@ -75,7 +75,7 @@ namespace InventoryQRManager.Services
             {
                 ApplyThemeToControl(control, theme);
                 
-                // Recursivamente aplicar a controles hijos
+                
                 if (control.HasChildren)
                 {
                     ApplyThemeToControls(control.Controls, theme);
@@ -165,7 +165,7 @@ namespace InventoryQRManager.Services
             button.FlatAppearance.BorderColor = theme.BorderColor;
             button.Font = new Font(button.Font.FontFamily, button.Font.Size, FontStyle.Regular);
             
-            // Determinar color según el tipo de botón
+            
             if (button.Text.Contains("Guardar") || button.Text.Contains("Crear") || button.Text.Contains("Agregar"))
             {
                 button.BackColor = theme.SuccessColor;
@@ -197,7 +197,7 @@ namespace InventoryQRManager.Services
                 button.FlatAppearance.BorderColor = theme.BorderColor;
             }
             
-            // Efecto hover
+            
             button.FlatAppearance.MouseOverBackColor = theme.HoverColor;
             button.FlatAppearance.MouseDownBackColor = theme.SelectedColor;
         }
@@ -259,7 +259,7 @@ namespace InventoryQRManager.Services
         }
     }
 
-    // Renderer personalizado para MenuStrip
+    
     public class ProfessionalMenuRenderer : ToolStripProfessionalRenderer
     {
         private readonly ThemeService.ProfessionalTheme _theme;
@@ -293,7 +293,7 @@ namespace InventoryQRManager.Services
         }
     }
 
-    // Renderer personalizado para ToolStrip
+    
     public class ProfessionalToolStripRenderer : ToolStripProfessionalRenderer
     {
         private readonly ThemeService.ProfessionalTheme _theme;

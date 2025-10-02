@@ -23,7 +23,6 @@ namespace InventoryQRManager.Views
         {
             this.SuspendLayout();
             
-            // Configurar el formulario
             this.Text = "Configuración";
             this.Size = new Size(600, 700);
             this.StartPosition = FormStartPosition.CenterParent;
@@ -39,32 +38,26 @@ namespace InventoryQRManager.Views
 
         private void CreateControls()
         {
-            // TabControl para organizar las configuraciones
             var tabControl = new TabControl();
             tabControl.Dock = DockStyle.Fill;
             this.Controls.Add(tabControl);
 
-            // Pestaña General
             var generalTab = new TabPage("General");
             tabControl.TabPages.Add(generalTab);
             CreateGeneralTab(generalTab);
 
-            // Pestaña Inventario
             var inventoryTab = new TabPage("Inventario");
             tabControl.TabPages.Add(inventoryTab);
             CreateInventoryTab(inventoryTab);
 
-            // Pestaña Backup
             var backupTab = new TabPage("Backup");
             tabControl.TabPages.Add(backupTab);
             CreateBackupTab(backupTab);
 
-            // Pestaña Categorías y Ubicaciones
             var categoriesTab = new TabPage("Categorías y Ubicaciones");
             tabControl.TabPages.Add(categoriesTab);
             CreateCategoriesTab(categoriesTab);
 
-            // Panel de botones
             var buttonPanel = new Panel();
             buttonPanel.Dock = DockStyle.Bottom;
             buttonPanel.Height = 50;
@@ -99,7 +92,6 @@ namespace InventoryQRManager.Views
             int labelWidth = 150;
             int controlWidth = 300;
 
-            // Información de la empresa
             var companyLabel = new Label();
             companyLabel.Text = "Información de la Empresa";
             companyLabel.Font = new Font("Arial", 12, FontStyle.Bold);
@@ -122,7 +114,6 @@ namespace InventoryQRManager.Views
 
             yPosition += 40;
 
-            // Configuración de idioma
             var languageLabel = new Label();
             languageLabel.Text = "Idioma:";
             languageLabel.Location = new Point(20, yPosition);
@@ -138,7 +129,6 @@ namespace InventoryQRManager.Views
 
             yPosition += 40;
 
-            // Configuración de tema
             var themeLabel = new Label();
             themeLabel.Text = "Tema:";
             themeLabel.Location = new Point(20, yPosition);
@@ -154,7 +144,6 @@ namespace InventoryQRManager.Views
 
             yPosition += 40;
 
-            // Configuración de interfaz
             var interfaceLabel = new Label();
             interfaceLabel.Text = "Configuración de Interfaz";
             interfaceLabel.Font = new Font("Arial", 12, FontStyle.Bold);
@@ -201,7 +190,6 @@ namespace InventoryQRManager.Views
             int labelWidth = 150;
             int controlWidth = 300;
 
-            // Configuración de inventario
             var inventoryLabel = new Label();
             inventoryLabel.Text = "Configuración de Inventario";
             inventoryLabel.Font = new Font("Arial", 12, FontStyle.Bold);
@@ -276,7 +264,6 @@ namespace InventoryQRManager.Views
             int labelWidth = 150;
             int controlWidth = 300;
 
-            // Configuración de backup
             var backupLabel = new Label();
             backupLabel.Text = "Configuración de Backup";
             backupLabel.Font = new Font("Arial", 12, FontStyle.Bold);
@@ -330,7 +317,6 @@ namespace InventoryQRManager.Views
 
             yPosition += 60;
 
-            // Botones de backup manual
             var manualBackupLabel = new Label();
             manualBackupLabel.Text = "Backup Manual";
             manualBackupLabel.Font = new Font("Arial", 12, FontStyle.Bold);
@@ -359,7 +345,6 @@ namespace InventoryQRManager.Views
         {
             int yPosition = 20;
 
-            // Categorías personalizadas
             var categoriesLabel = new Label();
             categoriesLabel.Text = "Categorías Personalizadas";
             categoriesLabel.Font = new Font("Arial", 12, FontStyle.Bold);
@@ -396,7 +381,6 @@ namespace InventoryQRManager.Views
 
             yPosition += 200;
 
-            // Ubicaciones personalizadas
             var locationsLabel = new Label();
             locationsLabel.Text = "Ubicaciones Personalizadas";
             locationsLabel.Font = new Font("Arial", 12, FontStyle.Bold);
@@ -442,10 +426,9 @@ namespace InventoryQRManager.Views
                 autoBackupCheckBox == null || backupIntervalNumericUpDown == null || 
                 backupLocationTextBox == null)
             {
-                return; // No cargar si los controles no están configurados
+                return; 
             }
             
-            // Cargar configuraciones generales
             companyNameTextBox.Text = _settings.CompanyName;
             languageComboBox.SelectedIndex = _settings.Language == "es" ? 0 : 1;
             themeComboBox.SelectedIndex = _settings.Theme == "Light" ? 0 : 1;
@@ -453,7 +436,6 @@ namespace InventoryQRManager.Views
             showNotificationsCheckBox.Checked = _settings.ShowNotifications;
             gridPageSizeNumericUpDown.Value = _settings.GridPageSize;
 
-            // Cargar configuraciones de inventario
             LoadCategoriesAndLocations();
             defaultCategoryComboBox.Text = _settings.DefaultCategory;
             defaultLocationComboBox.Text = _settings.DefaultLocation;
@@ -461,12 +443,10 @@ namespace InventoryQRManager.Views
             lowStockThresholdNumericUpDown.Value = _settings.LowStockThreshold;
             enableAuditLogCheckBox.Checked = _settings.EnableAuditLog;
 
-            // Cargar configuraciones de backup
             autoBackupCheckBox.Checked = _settings.AutoBackup;
             backupIntervalNumericUpDown.Value = _settings.BackupIntervalDays;
             backupLocationTextBox.Text = _settings.BackupLocation;
 
-            // Cargar categorías y ubicaciones personalizadas
             LoadCustomCategoriesAndLocations();
         }
 
@@ -474,7 +454,7 @@ namespace InventoryQRManager.Views
         {
             if (defaultCategoryComboBox == null || defaultLocationComboBox == null)
             {
-                return; // No cargar si los controles no están configurados
+                return;
             }
             
             var allCategories = _settingsService.GetAllCategories();
@@ -490,7 +470,7 @@ namespace InventoryQRManager.Views
         {
             if (customCategoriesListBox == null || customLocationsListBox == null)
             {
-                return; // No cargar si los controles no están configurados
+                return; 
             }
             
             customCategoriesListBox.Items.Clear();
@@ -516,7 +496,6 @@ namespace InventoryQRManager.Views
             
             try
             {
-                // Guardar configuraciones generales
                 _settings.CompanyName = companyNameTextBox.Text;
                 _settings.Language = languageComboBox.SelectedIndex == 0 ? "es" : "en";
                 _settings.Theme = themeComboBox.SelectedIndex == 0 ? "Light" : "Dark";
@@ -524,14 +503,12 @@ namespace InventoryQRManager.Views
                 _settings.ShowNotifications = showNotificationsCheckBox.Checked;
                 _settings.GridPageSize = (int)gridPageSizeNumericUpDown.Value;
 
-                // Guardar configuraciones de inventario
                 _settings.DefaultCategory = defaultCategoryComboBox.Text;
                 _settings.DefaultLocation = defaultLocationComboBox.Text;
                 _settings.AutoGenerateQR = autoGenerateQRCheckBox.Checked;
                 _settings.LowStockThreshold = (int)lowStockThresholdNumericUpDown.Value;
                 _settings.EnableAuditLog = enableAuditLogCheckBox.Checked;
 
-                // Guardar configuraciones de backup
                 _settings.AutoBackup = autoBackupCheckBox.Checked;
                 _settings.BackupIntervalDays = (int)backupIntervalNumericUpDown.Value;
                 _settings.BackupLocation = backupLocationTextBox.Text;
@@ -695,7 +672,6 @@ namespace InventoryQRManager.Views
             }
         }
 
-        // Controles
         private TextBox companyNameTextBox;
         private ComboBox languageComboBox;
         private ComboBox themeComboBox;

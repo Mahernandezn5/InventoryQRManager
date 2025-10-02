@@ -19,7 +19,6 @@ namespace InventoryQRManager.Views
         {
             this.SuspendLayout();
             
-            // Configurar el formulario
             this.Text = "Bienvenido - Inventory QR Manager";
             this.Size = new Size(900, 700);
             this.StartPosition = FormStartPosition.CenterScreen;
@@ -37,13 +36,11 @@ namespace InventoryQRManager.Views
 
         private void CreateControls()
         {
-            // Panel principal
             var mainPanel = new Panel();
             mainPanel.Dock = DockStyle.Fill;
             mainPanel.BackColor = Color.White;
             this.Controls.Add(mainPanel);
 
-            // Logo/Título
             var titleLabel = new Label();
             titleLabel.Text = "Inventory QR Manager";
             titleLabel.Font = new Font("Segoe UI", 28, FontStyle.Bold);
@@ -62,7 +59,6 @@ namespace InventoryQRManager.Views
             subtitleLabel.TextAlign = ContentAlignment.MiddleCenter;
             mainPanel.Controls.Add(subtitleLabel);
 
-            // Panel de características
             var featuresPanel = new Panel();
             featuresPanel.Location = new Point(50, 150);
             featuresPanel.Size = new Size(700, 300);
@@ -77,7 +73,6 @@ namespace InventoryQRManager.Views
             featuresTitleLabel.Size = new Size(300, 25);
             featuresPanel.Controls.Add(featuresTitleLabel);
 
-            // Lista de características
             var features = new[]
             {
                 "✓ Gestión completa de inventario",
@@ -102,7 +97,6 @@ namespace InventoryQRManager.Views
                 yPos += 25;
             }
 
-            // Panel de acciones rápidas
             var actionsPanel = new Panel();
             actionsPanel.Location = new Point(400, 60);
             actionsPanel.Size = new Size(250, 250);
@@ -117,7 +111,6 @@ namespace InventoryQRManager.Views
             actionsTitleLabel.Size = new Size(200, 25);
             actionsPanel.Controls.Add(actionsTitleLabel);
 
-            // Botones de acciones rápidas
             var newItemButton = new Button();
             newItemButton.Text = "Nuevo Item";
             newItemButton.Location = new Point(20, 60);
@@ -159,14 +152,12 @@ namespace InventoryQRManager.Views
             settingsButton.Click += SettingsButton_Click;
             actionsPanel.Controls.Add(settingsButton);
 
-            // Panel inferior
             var bottomPanel = new Panel();
             bottomPanel.Dock = DockStyle.Bottom;
             bottomPanel.Height = 80;
             bottomPanel.BackColor = Color.LightGray;
             mainPanel.Controls.Add(bottomPanel);
 
-            // Checkbox para no mostrar más
             var dontShowCheckBox = new CheckBox();
             dontShowCheckBox.Text = "No mostrar esta pantalla al iniciar";
             dontShowCheckBox.Location = new Point(20, 20);
@@ -174,7 +165,6 @@ namespace InventoryQRManager.Views
             dontShowCheckBox.CheckedChanged += DontShowCheckBox_CheckedChanged;
             bottomPanel.Controls.Add(dontShowCheckBox);
 
-            // Botones
             var startButton = new Button();
             startButton.Text = "Comenzar";
             startButton.Location = new Point(600, 15);
@@ -195,7 +185,6 @@ namespace InventoryQRManager.Views
             exitButton.Click += ExitButton_Click;
             bottomPanel.Controls.Add(exitButton);
 
-            // Información de versión
             var versionLabel = new Label();
             versionLabel.Text = "Versión 1.0 - Desarrollado con .NET 9.0";
             versionLabel.Font = new Font("Arial", 9);
@@ -257,7 +246,6 @@ namespace InventoryQRManager.Views
             }
             catch
             {
-                // Error actualizando configuración
             }
         }
     }

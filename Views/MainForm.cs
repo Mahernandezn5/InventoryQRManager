@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows.Forms;
 using InventoryQRManager.Models;
 using InventoryQRManager.Services;
+using InventoryQRManager.Data;
 
 namespace InventoryQRManager.Views
 {
@@ -14,27 +15,39 @@ namespace InventoryQRManager.Views
     {
         private readonly InventoryService _inventoryService;
         private readonly QRCodeService _qrCodeService;
+        private readonly HistoryService _historyService;
         private readonly ReportService _reportService;
         private readonly BackupService _backupService;
         private readonly SettingsService _settingsService;
+        private readonly ApiTestService _apiTestService;
+        private readonly AuthService _authService;
+        private readonly DatabaseContext _context;
         private List<InventoryItem> _inventoryItems;
 
         public MainForm()
         {
+            _context = new DatabaseContext();
+            _authService = new AuthService(_context);
             _inventoryService = new InventoryService();
             _qrCodeService = new QRCodeService();
+            _historyService = new HistoryService();
             _reportService = new ReportService();
             _backupService = new BackupService();
             _settingsService = new SettingsService();
+            _apiTestService = new ApiTestService();
             _inventoryItems = new List<InventoryItem>();
+            
+            if (!ShowLogin())
+            {
+                Application.Exit();
+                return;
+            }
             
             InitializeComponent();
             
-            // Cargar datos después de que se hayan configurado todos los controles
             LoadInventoryData();
             LoadSettings();
             
-            // Aplicar tema profesional DESPUÉS de cargar los datos
             ApplyProfessionalTheme();
         }
 
@@ -42,8 +55,7 @@ namespace InventoryQRManager.Views
         {
             this.SuspendLayout();
             
-            // Configurar el formulario principal con mejor diseño
-            this.Text = "Inventory QR Manager - Sistema de Gestión de Inventario";
+            this.Text = $"Inventory QR Manager - Sistema de Gestión de Inventario | Usuario: {_authService.CurrentUser?.FullName ?? "Desconocido"}";
             this.Size = new Size(1400, 900);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.MinimumSize = new Size(1000, 700);
@@ -51,19 +63,14 @@ namespace InventoryQRManager.Views
             this.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
             this.WindowState = FormWindowState.Maximized;
 
-            // Crear el menú principal
             CreateMenuStrip();
             
-            // Crear la barra de herramientas
             CreateToolStrip();
             
-            // Crear el DataGridView
             CreateDataGridView();
             
-            // Crear el panel de información
             CreateInfoPanel();
             
-            // Crear el panel de QR
             CreateQRPanel();
 
             this.ResumeLayout(false);
@@ -74,14 +81,12 @@ namespace InventoryQRManager.Views
         {
             var menuStrip = new MenuStrip();
             
-            // Menú Archivo
             var fileMenu = new ToolStripMenuItem("&Archivo");
             fileMenu.DropDownItems.Add("&Importar", null, (s, e) => ImportData());
             fileMenu.DropDownItems.Add("&Exportar", null, (s, e) => ExportData());
             fileMenu.DropDownItems.Add(new ToolStripSeparator());
             fileMenu.DropDownItems.Add("&Salir", null, (s, e) => this.Close());
             
-            // Menú Inventario (sin "Nuevo Item" ni funciones QR duplicadas)
             var inventoryMenu = new ToolStripMenuItem("&Inventario");
             inventoryMenu.DropDownItems.Add("&Ver Todos", null, (s, e) => LoadInventoryData());
             inventoryMenu.DropDownItems.Add("&Buscar Avanzada", null, (s, e) => ShowAdvancedSearch());
@@ -89,17 +94,22 @@ namespace InventoryQRManager.Views
             inventoryMenu.DropDownItems.Add(new ToolStripSeparator());
             inventoryMenu.DropDownItems.Add("&Stock Bajo", null, (s, e) => ShowLowStockItems());
             
-            // Menú Códigos QR (mantener solo las funciones principales)
             var qrMenu = new ToolStripMenuItem("&Códigos QR");
             qrMenu.DropDownItems.Add("&Escanear QR", null, (s, e) => ScanQRCode());
             qrMenu.DropDownItems.Add("&Imprimir QR", null, (s, e) => PrintQRCode());
             
-            // Menú Herramientas
             var toolsMenu = new ToolStripMenuItem("&Herramientas");
+            toolsMenu.DropDownItems.Add("📊 &Dashboard Ejecutivo", null, (s, e) => ShowDashboard());
+            toolsMenu.DropDownItems.Add(new ToolStripSeparator());
+            toolsMenu.DropDownItems.Add("👥 &Gestión de Usuarios", null, (s, e) => ShowUserManagement());
+            toolsMenu.DropDownItems.Add("🔐 &Cambiar Usuario", null, (s, e) => ChangeUser());
+            toolsMenu.DropDownItems.Add(new ToolStripSeparator());
             toolsMenu.DropDownItems.Add("&Configuración", null, (s, e) => ShowSettings());
             toolsMenu.DropDownItems.Add("&Backup", null, (s, e) => ShowBackupDialog());
+            toolsMenu.DropDownItems.Add(new ToolStripSeparator());
+            toolsMenu.DropDownItems.Add("🌐 &Probar API REST", null, (s, e) => TestApiConnection());
+            toolsMenu.DropDownItems.Add("📋 &Historial de Movimientos", null, (s, e) => ShowHistory());
             
-            // Menú Ayuda
             var helpMenu = new ToolStripMenuItem("&Ayuda");
             helpMenu.DropDownItems.Add("&Acerca de", null, (s, e) => ShowAbout());
             
@@ -111,15 +121,13 @@ namespace InventoryQRManager.Views
         private void CreateToolStrip()
         {
             var toolStrip = new ToolStrip();
-            toolStrip.BackColor = Color.FromArgb(52, 73, 94); // Color unificado para el fondo
+            toolStrip.BackColor = Color.FromArgb(52, 73, 94); 
             toolStrip.ForeColor = Color.White;
             toolStrip.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
             toolStrip.Padding = new Padding(10, 5, 10, 5);
             
-            // Color unificado para todos los botones - más formal y profesional
-            var primaryButtonColor = Color.FromArgb(41, 128, 185); // Azul profesional unificado
+            var primaryButtonColor = Color.FromArgb(41, 128, 185); o
             
-            // Botones principales con diseño unificado y más formal
             var newButton = new ToolStripButton("➕ Nuevo Item", null, (s, e) => ShowAddItemForm());
             newButton.BackColor = primaryButtonColor;
             newButton.ForeColor = Color.White;
@@ -139,10 +147,10 @@ namespace InventoryQRManager.Views
             separator1.BackColor = Color.FromArgb(149, 165, 166);
             
             
-            var scanButton = new ToolStripButton("📱 Escanear", null, (s, e) => ScanQRCode());
-            scanButton.BackColor = primaryButtonColor;
-            scanButton.ForeColor = Color.White;
-            scanButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            var historyButton = new ToolStripButton("📋 Historial", null, (s, e) => ShowHistory());
+            historyButton.BackColor = Color.FromArgb(155, 89, 182);
+            historyButton.ForeColor = Color.White;
+            historyButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             
             var separator2 = new ToolStripSeparator();
             separator2.BackColor = Color.FromArgb(149, 165, 166);
@@ -154,7 +162,7 @@ namespace InventoryQRManager.Views
             
             toolStrip.Items.AddRange(new ToolStripItem[] { 
                 newButton, editButton, deleteButton, separator1, 
-                scanButton, separator2, refreshButton 
+                historyButton, separator2, refreshButton 
             });
             
             this.Controls.Add(toolStrip);
@@ -173,22 +181,18 @@ namespace InventoryQRManager.Views
             dataGridView.CellDoubleClick += DataGridView_CellDoubleClick;
             dataGridView.SelectionChanged += DataGridView_SelectionChanged;
             
-            // Configurar propiedades básicas del DataGridView
             dataGridView.RowHeadersVisible = false;
             dataGridView.EnableHeadersVisualStyles = false;
             
-            // CRÍTICO: Configurar encabezados ANTES de agregar columnas
             dataGridView.ColumnHeadersVisible = true;
             dataGridView.ColumnHeadersHeight = 50;
             
-            // Configurar estilo de encabezados más moderno
             dataGridView.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(41, 128, 185);
             dataGridView.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
             dataGridView.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             dataGridView.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             dataGridView.ColumnHeadersDefaultCellStyle.Padding = new Padding(8, 8, 8, 8);
             
-            // Mejorar el centrado y apariencia con mejor espaciado
             dataGridView.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridView.DefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
             dataGridView.DefaultCellStyle.Padding = new Padding(8, 4, 8, 4);
@@ -197,13 +201,10 @@ namespace InventoryQRManager.Views
             dataGridView.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
             dataGridView.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
             
-            // Hacer los items más grandes y con mejor espaciado
             dataGridView.RowTemplate.Height = 50;
             
-            // Agregar margen superior para separar del menú
             dataGridView.Margin = new Padding(10, 10, 10, 0);
             
-            // Configurar columnas inmediatamente
             SetupDataGridViewColumns();
             
             this.Controls.Add(dataGridView);
@@ -236,13 +237,11 @@ namespace InventoryQRManager.Views
             qrPanel.BackColor = Color.White;
             qrPanel.Padding = new Padding(0);
             
-            // Crear un panel principal con sombra
             var mainContainer = new Panel();
             mainContainer.Dock = DockStyle.Fill;
             mainContainer.BackColor = Color.White;
             mainContainer.Padding = new Padding(15);
             
-            // Título del panel QR
             var qrLabel = new Label();
             qrLabel.Text = "🔍 Código QR";
             qrLabel.Dock = DockStyle.Top;
@@ -253,7 +252,6 @@ namespace InventoryQRManager.Views
             qrLabel.ForeColor = Color.White;
             qrLabel.Padding = new Padding(0, 10, 0, 10);
             
-            // Panel para el código QR con mejor diseño
             var qrImagePanel = new Panel();
             qrImagePanel.Dock = DockStyle.Fill;
             qrImagePanel.BackColor = Color.FromArgb(248, 249, 250);
@@ -266,7 +264,6 @@ namespace InventoryQRManager.Views
             qrPictureBox.BackColor = Color.White;
             qrPictureBox.Padding = new Padding(10);
             
-            // Panel de información del item mejorado
             var itemInfoPanel = new Panel();
             itemInfoPanel.Dock = DockStyle.Bottom;
             itemInfoPanel.Height = 160;
@@ -283,7 +280,6 @@ namespace InventoryQRManager.Views
             
             itemInfoPanel.Controls.Add(itemInfoLabel);
             
-            // Agregar controles en orden
             qrImagePanel.Controls.Add(qrPictureBox);
             mainContainer.Controls.Add(qrImagePanel);
             mainContainer.Controls.Add(itemInfoPanel);
@@ -297,12 +293,10 @@ namespace InventoryQRManager.Views
         {
             try
             {
-                // Asegurar que el DataGridView esté en modo None antes de configurar columnas
                 dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
                 
                 dataGridView.Columns.Clear();
                 
-                // Agregar columnas con títulos descriptivos y claros
                 dataGridView.Columns.Add("Id", "ID");
                 dataGridView.Columns.Add("Name", "Nombre");
                 dataGridView.Columns.Add("SKU", "Código SKU");
@@ -312,16 +306,13 @@ namespace InventoryQRManager.Views
                 dataGridView.Columns.Add("Location", "Ubicación");
                 dataGridView.Columns.Add("CreatedDate", "Fecha");
                 
-                // Configurar cada columna individualmente para evitar errores de FillWeight
                 foreach (DataGridViewColumn column in dataGridView.Columns)
                 {
                     try
                     {
-                        // Asegurar que cada columna tenga configuración segura
                         column.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                        column.FillWeight = 100; // Valor seguro por defecto
+                        column.FillWeight = 100; 
                         
-                        // Configurar anchos específicos
                         switch (column.Name)
                         {
                             case "Id":
@@ -358,27 +349,22 @@ namespace InventoryQRManager.Views
                     }
                     catch (Exception columnEx)
                     {
-                        // Ignorar errores individuales de columnas
                         System.Diagnostics.Debug.WriteLine($"Error configurando columna {column.Name}: {columnEx.Message}");
                     }
                 }
                 
-                // CRÍTICO: Asegurar que los encabezados sean visibles DESPUÉS de configurar las columnas
                 dataGridView.ColumnHeadersVisible = true;
                 dataGridView.EnableHeadersVisualStyles = false;
                 dataGridView.ColumnHeadersHeight = 50;
                 
-                // Reconfigurar estilos de encabezados para asegurar visibilidad
                 dataGridView.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(41, 128, 185);
                 dataGridView.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
                 dataGridView.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
                 dataGridView.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 
-                // Forzar actualización visual
                 dataGridView.Invalidate();
                 dataGridView.Refresh();
                 
-                // Asegurar que el modo permanezca en None
                 dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
             }
             catch (Exception ex)
@@ -393,25 +379,20 @@ namespace InventoryQRManager.Views
             {
                 _inventoryItems = _inventoryService.GetAllItems();
                 
-                // Solo refrescar si el DataGridView está configurado
                 if (dataGridView != null && dataGridView.Columns.Count > 0)
                 {
-                    // Asegurar que el DataGridView esté correctamente configurado
                     EnsureDataGridViewIsValid();
                     RefreshDataGridView();
                     UpdateInfoLabel();
                     
-                    // Limpiar selección y panel QR automáticamente
                     ClearSelectionAndQRPanel();
                 }
                 else if (dataGridView != null && dataGridView.Columns.Count == 0)
                 {
-                    // Si el DataGridView existe pero no tiene columnas, configurarlas
                     SetupDataGridViewColumns();
                     RefreshDataGridView();
                     UpdateInfoLabel();
                     
-                    // Limpiar selección y panel QR automáticamente
                     ClearSelectionAndQRPanel();
                 }
             }
@@ -425,20 +406,17 @@ namespace InventoryQRManager.Views
         {
             try
             {
-                // Limpiar selección del DataGridView
                 if (dataGridView != null)
                 {
                     dataGridView.ClearSelection();
                 }
                 
-                // Limpiar panel QR
                 if (qrPictureBox != null && qrPictureBox.Image != null)
                 {
                     qrPictureBox.Image.Dispose();
                     qrPictureBox.Image = null;
                 }
                 
-                // Limpiar información del item
                 if (itemInfoLabel != null)
                 {
                     itemInfoLabel.Text = "Seleccione un item para ver detalles";
@@ -457,7 +435,6 @@ namespace InventoryQRManager.Views
                 return;
             }
             
-            // Asegurar que el modo de redimensionamiento esté configurado correctamente
             if (dataGridView.AutoSizeColumnsMode != DataGridViewAutoSizeColumnsMode.None)
             {
                 dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
@@ -468,7 +445,7 @@ namespace InventoryQRManager.Views
         {
             if (dataGridView == null || dataGridView.Columns.Count == 0)
             {
-                return; // No refrescar si el DataGridView no está configurado
+                return; 
             }
             
             dataGridView.Rows.Clear();
@@ -494,7 +471,7 @@ namespace InventoryQRManager.Views
             {
                 if (dataGridView == null)
                 {
-                    return; // No actualizar si el DataGridView no está configurado
+                    return; 
                 }
                 
                 var selectedCount = dataGridView.SelectedRows.Count;
@@ -503,7 +480,6 @@ namespace InventoryQRManager.Views
                 var totalValue = _inventoryItems.Where(item => item.IsActive).Sum(item => item.Price * item.Quantity);
                 var lowStockItems = _inventoryItems.Count(item => item.IsActive && item.Quantity <= 5);
                 
-                // Actualizar el label de información
                 var infoPanel = this.Controls.OfType<Panel>().FirstOrDefault(p => p.Dock == DockStyle.Bottom);
                 if (infoPanel != null)
                 {
@@ -512,7 +488,6 @@ namespace InventoryQRManager.Views
                     {
                         infoLabel.Text = $"Total: {totalCount} items | Valor: ${totalValue:F2} | Stock Bajo: {lowStockItems} | Seleccionados: {selectedCount}";
                         
-                        // Siempre usar color negro
                         infoLabel.ForeColor = Color.Black;
                     }
                 }
@@ -527,7 +502,7 @@ namespace InventoryQRManager.Views
         {
             if (dataGridView == null || dataGridView.Columns.Count == 0)
             {
-                return; // No procesar si el DataGridView no está configurado
+                return; 
             }
             
             if (e.RowIndex >= 0)
@@ -540,7 +515,7 @@ namespace InventoryQRManager.Views
         {
             if (dataGridView == null || dataGridView.Columns.Count == 0)
             {
-                return; // No procesar si el DataGridView no está configurado
+                return; 
             }
             
             if (dataGridView.SelectedRows.Count > 0)
@@ -553,18 +528,18 @@ namespace InventoryQRManager.Views
                     
                     if (item != null)
                     {
-                        // Generar código QR si no existe
+                        
                         if (string.IsNullOrEmpty(item.QRCode))
                         {
                             item.QRCode = $"ITEM_{item.Id}_{item.SKU}";
                             _inventoryService.UpdateItem(item);
                         }
                         
-                        // Generar y mostrar el código QR automáticamente
+                        
                         var qrCodeImage = _qrCodeService.GenerateQRCode(item.QRCode);
                         if (qrPictureBox != null)
                         {
-                            // Limpiar imagen anterior si existe
+                            
                             if (qrPictureBox.Image != null)
                             {
                                 qrPictureBox.Image.Dispose();
@@ -572,16 +547,15 @@ namespace InventoryQRManager.Views
                             
                             qrPictureBox.Image = qrCodeImage;
                             qrPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
-                            qrPictureBox.Refresh(); // Forzar actualización visual
+                            qrPictureBox.Refresh();
                         }
                         
-                        // Actualizar la información del item
+                       
                         UpdateQRPanelInfo(item);
                     }
                 }
                 catch (Exception ex)
                 {
-                    // Mostrar error en el panel de información
                     if (itemInfoLabel != null)
                     {
                         itemInfoLabel.Text = $"Error generando QR: {ex.Message}";
@@ -591,7 +565,6 @@ namespace InventoryQRManager.Views
             }
             else
             {
-                // Limpiar el panel QR cuando no hay selección
                 if (qrPictureBox != null)
                 {
                     if (qrPictureBox.Image != null)
@@ -614,7 +587,6 @@ namespace InventoryQRManager.Views
             {
                 var addForm = new AddEditItemForm();
                 addForm.FormClosed += (sender, e) => {
-                    // Actualizar datos cuando se cierre el formulario
                     LoadInventoryData();
                 };
                 addForm.Show();
@@ -645,7 +617,7 @@ namespace InventoryQRManager.Views
                     {
                         var editForm = new AddEditItemForm(item);
                         editForm.FormClosed += (sender, e) => {
-                            // Actualizar datos cuando se cierre el formulario
+                            
                             LoadInventoryData();
                         };
                         editForm.Show();
@@ -681,9 +653,18 @@ namespace InventoryQRManager.Views
                 
                 if (result == DialogResult.Yes)
                 {
+                    
+                    var item = _inventoryService.GetItemById(itemId);
+                    
                     if (_inventoryService.DeleteItem(itemId))
                     {
-                        MessageBox.Show("Item eliminado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                       
+                        if (item != null)
+                        {
+                            _historyService.RecordAction(item, HistoryAction.DELETE, "Eliminación manual");
+                        }
+                        
+                        MessageBox.Show("Item eliminado correctamente y registrado en historial.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LoadInventoryData();
                     }
                     else
@@ -716,28 +697,24 @@ namespace InventoryQRManager.Views
                 {
                     try
                     {
-                        // Verificar si el item tiene código QR
                         if (string.IsNullOrEmpty(item.QRCode))
                         {
                             MessageBox.Show("Este item no tiene un código QR. Los códigos QR se generan automáticamente al crear o editar items.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             return;
                         }
                         
-                        // Generar la imagen del código QR existente
                         var qrCodeImage = _qrCodeService.GenerateQRCode(item.QRCode);
                         if (qrPictureBox != null)
                         {
-                            // Limpiar imagen anterior si existe
                             if (qrPictureBox.Image != null)
                             {
                                 qrPictureBox.Image.Dispose();
                             }
                             
                             qrPictureBox.Image = qrCodeImage;
-                            qrPictureBox.Refresh(); // Forzar actualización visual
+                            qrPictureBox.Refresh(); 
                         }
                         
-                        // Actualizar el label del panel QR con información del item
                         UpdateQRPanelInfo(item);
                         
                         MessageBox.Show("Código QR mostrado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -773,7 +750,6 @@ namespace InventoryQRManager.Views
                     return;
                 }
 
-                // Obtener el item seleccionado para el nombre del archivo
                 InventoryItem? selectedItem = null;
                 if (dataGridView?.SelectedRows.Count > 0)
                 {
@@ -782,14 +758,12 @@ namespace InventoryQRManager.Views
                     selectedItem = _inventoryService.GetItemById(itemId);
                 }
 
-                // Configurar el diálogo de guardar archivo
                 using (var saveFileDialog = new SaveFileDialog())
                 {
                     saveFileDialog.Filter = "Imagen PNG (*.png)|*.png|Imagen JPEG (*.jpg)|*.jpg|Imagen BMP (*.bmp)|*.bmp|Todos los archivos (*.*)|*.*";
                     saveFileDialog.FilterIndex = 1;
                     saveFileDialog.DefaultExt = "png";
                     
-                    // Sugerir nombre de archivo basado en el item seleccionado
                     if (selectedItem != null)
                     {
                         var fileName = $"QR_{selectedItem.Name?.Replace(" ", "_") ?? "Item"}_{selectedItem.SKU ?? selectedItem.Id.ToString()}";
@@ -802,7 +776,6 @@ namespace InventoryQRManager.Views
 
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
-                        // Guardar la imagen QR
                         var imageFormat = ImageFormat.Png;
                         switch (saveFileDialog.FilterIndex)
                         {
@@ -811,13 +784,11 @@ namespace InventoryQRManager.Views
                             case 3: imageFormat = ImageFormat.Bmp; break;
                         }
 
-                        // Crear una copia de la imagen para evitar problemas de acceso
                         using (var bitmap = new Bitmap(qrPictureBox.Image))
                         {
                             bitmap.Save(saveFileDialog.FileName, imageFormat);
                         }
 
-                        // Mostrar mensaje de éxito
                         var message = $"Código QR guardado exitosamente en:\n{saveFileDialog.FileName}";
                         if (selectedItem != null)
                         {
@@ -826,7 +797,6 @@ namespace InventoryQRManager.Views
                         
                         MessageBox.Show(message, "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                        // Opcional: Abrir la carpeta donde se guardó el archivo
                         var result = MessageBox.Show("¿Desea abrir la carpeta donde se guardó el archivo?", "Abrir carpeta", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (result == DialogResult.Yes)
                         {
@@ -861,13 +831,11 @@ namespace InventoryQRManager.Views
                     {
                         if (fileExtension == ".json")
                         {
-                            // Importar desde JSON (backup)
                             _backupService.RestoreBackup(openDialog.FileName);
                             MessageBox.Show("Importación desde JSON completada exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                         else if (fileExtension == ".csv")
                         {
-                            // Importar desde CSV
                             _backupService.ImportFromCSV(openDialog.FileName);
                             MessageBox.Show("Importación desde CSV completada exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
@@ -877,7 +845,6 @@ namespace InventoryQRManager.Views
                             return;
                         }
                         
-                        // Actualizar la interfaz después de la importación
                         LoadInventoryData();
                     }
                 }
@@ -903,13 +870,11 @@ namespace InventoryQRManager.Views
                     
                     if (fileExtension == ".json")
                     {
-                        // Exportar como JSON (backup completo)
                         _backupService.CreateBackup(saveDialog.FileName);
                         MessageBox.Show("Exportación a JSON completada exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else if (fileExtension == ".csv")
                     {
-                        // Exportar como CSV
                         _backupService.ExportToCSV(saveDialog.FileName);
                         MessageBox.Show("Exportación a CSV completada exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
@@ -931,7 +896,6 @@ namespace InventoryQRManager.Views
             {
                 var searchForm = new SearchForm();
                 searchForm.FormClosed += (sender, e) => {
-                    // Actualizar datos cuando se cierre el formulario
                     LoadInventoryData();
                 };
                 searchForm.Show();
@@ -1075,13 +1039,11 @@ namespace InventoryQRManager.Views
             {
                 var settings = _settingsService.GetSettings();
                 
-                // Aplicar configuración de la empresa
                 if (!string.IsNullOrEmpty(settings.CompanyName))
                 {
                     this.Text = $"Inventory QR Manager - {settings.CompanyName}";
                 }
                 
-                // Actualizar información del panel solo si el DataGridView está configurado
                 if (dataGridView != null && dataGridView.Columns.Count > 0)
                 {
                     UpdateInfoLabel();
@@ -1089,16 +1051,13 @@ namespace InventoryQRManager.Views
             }
             catch (Exception ex)
             {
-                // Error cargando configuración, usar valores por defecto
             }
         }
 
         private void ApplyProfessionalTheme()
         {
-            // Aplicar tema profesional a todo el formulario
             ThemeService.ApplyTheme(this);
             
-            // Aplicar estilos específicos adicionales
             ApplyCustomStyling();
         }
 
@@ -1108,43 +1067,33 @@ namespace InventoryQRManager.Views
             {
                 var theme = ThemeService.CurrentTheme;
                 
-                // Personalizar el DataGridView con estilos adicionales más modernos
                 if (dataGridView != null)
                 {
-                    // Asegurar que el modo esté en None ANTES de cualquier otra operación para evitar errores de FillWeight
                     dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
                     
-                    // Configuración de espaciado (aplicar siempre)
                     dataGridView.RowHeadersWidth = 0;
                     dataGridView.ColumnHeadersHeight = 50;
                     dataGridView.RowTemplate.Height = 50;
                     
-                    // Mejorar la apariencia general
                     dataGridView.BackgroundColor = Color.White;
                     dataGridView.GridColor = Color.FromArgb(220, 220, 220);
                     dataGridView.BorderStyle = BorderStyle.None;
                     dataGridView.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
                     dataGridView.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
                     
-                    // Solo aplicar estilos si hay columnas configuradas
                     if (dataGridView.Columns.Count > 0)
                     {
-                        // Estilo para filas alternadas
                         dataGridView.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(250, 250, 250);
                         dataGridView.AlternatingRowsDefaultCellStyle.ForeColor = Color.FromArgb(44, 62, 80);
                         
-                        // Estilo para filas normales
                         dataGridView.DefaultCellStyle.BackColor = Color.White;
                         dataGridView.DefaultCellStyle.ForeColor = Color.FromArgb(44, 62, 80);
                         
-                        // Estilo para filas seleccionadas
                         dataGridView.RowsDefaultCellStyle.SelectionBackColor = Color.FromArgb(52, 152, 219);
                         dataGridView.RowsDefaultCellStyle.SelectionForeColor = Color.White;
                         
-                        // Agregar padding a las celdas
                         dataGridView.DefaultCellStyle.Padding = new Padding(8, 8, 8, 8);
                         
-                        // Asegurar que no haya problemas con FillWeight - verificar cada columna individualmente
                         foreach (DataGridViewColumn column in dataGridView.Columns)
                         {
                             try
@@ -1153,33 +1102,28 @@ namespace InventoryQRManager.Views
                                 {
                                     column.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
                                 }
-                                // Asegurar que FillWeight no sea 0
                                 if (column.FillWeight <= 0)
                                 {
-                                    column.FillWeight = 100; // Valor por defecto seguro
+                                    column.FillWeight = 100; 
                                 }
                             }
                             catch (Exception columnEx)
                             {
-                                // Ignorar errores individuales de columnas
                                 System.Diagnostics.Debug.WriteLine($"Error configurando columna {column.Name}: {columnEx.Message}");
                             }
                         }
                     }
                 }
                 
-                // Personalizar el PictureBox del QR
                 if (qrPictureBox != null)
                 {
                     qrPictureBox.BorderStyle = BorderStyle.None;
                 }
                 
-                // Agregar sombras sutiles a los paneles principales
                 AddShadowToPanels();
             }
             catch (Exception ex)
             {
-                // Solo mostrar error en debug, no al usuario para evitar interrupciones
                 System.Diagnostics.Debug.WriteLine($"Error aplicando estilos personalizados: {ex.Message}");
             }
         }
@@ -1190,7 +1134,7 @@ namespace InventoryQRManager.Views
             
             if (this.Controls == null)
             {
-                return; // No agregar sombras si los controles no están configurados
+                return; 
             }
             
             foreach (Control control in this.Controls)
@@ -1209,17 +1153,164 @@ namespace InventoryQRManager.Views
             }
         }
 
+        private void ShowHistory()
+        {
+            try
+            {
+                var historyForm = new HistoryForm();
+                historyForm.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error abriendo formulario de historial: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
+        private async void TestApiConnection()
+        {
+            try
+            {
+                var isConnected = await _apiTestService.TestApiConnection();
+                
+                if (isConnected)
+                {
+                    var summary = await _apiTestService.GetInventorySummary();
+                    
+                    if (summary != null && summary.Success)
+                    {
+                        var message = $"✅ API REST funcionando correctamente!\n\n" +
+                                    $"📊 Resumen del inventario:\n" +
+                                    $"• Total items: {summary.Data?.TotalItems}\n" +
+                                    $"• Total cantidad: {summary.Data?.TotalQuantity}\n" +
+                                    $"• Valor total: ${summary.Data?.TotalValue:F2}\n" +
+                                    $"• Categorías: {summary.Data?.CategoriesCount}\n" +
+                                    $"• Ubicaciones: {summary.Data?.LocationsCount}\n" +
+                                    $"• Stock bajo: {summary.Data?.LowStockItems}\n\n" +
+                                    $"🌐 API disponible en: http://localhost:5000\n" +
+                                    $"📚 Documentación: http://localhost:5000/api-docs";
+                        
+                        MessageBox.Show(message, "API REST - Conexión Exitosa", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("✅ API REST funcionando, pero hay un problema con los datos.", 
+                            "API REST - Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("❌ No se pudo conectar con la API REST.\n\n" +
+                                  "Verifique que:\n" +
+                                  "• La aplicación esté ejecutándose\n" +
+                                  "• El puerto 5000 esté disponible\n" +
+                                  "• No haya problemas de firewall", 
+                                  "API REST - Error de Conexión", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error probando conexión API: {ex.Message}", 
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private bool ShowLogin()
+        {
+            var loginForm = new LoginForm();
+            var result = loginForm.ShowDialog();
+            
+            if (result == DialogResult.OK)
+            {
+                return true;
+            }
+            
+            return false;
+        }
+
+        private void ShowDashboard()
+        {
+            try
+            {
+                var dashboardForm = new DashboardForm(_reportService, _inventoryService, _authService);
+                dashboardForm.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error abriendo dashboard: {ex.Message}", "Error", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ShowUserManagement()
+        {
+            try
+            {
+                if (!_authService.HasPermission(UserRole.Manager))
+                {
+                    MessageBox.Show("⚠️ No tiene permisos para gestionar usuarios.\n\n" +
+                                  "Solo los Managers y Administradores pueden acceder a esta función.",
+                        "Permisos Insuficientes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var userManagementForm = new UserManagementForm(_authService);
+                userManagementForm.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error abriendo gestión de usuarios: {ex.Message}", "Error", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ChangeUser()
+        {
+            var result = MessageBox.Show("¿Desea cambiar de usuario?\n\n" +
+                                       "Se cerrará la sesión actual y deberá iniciar sesión nuevamente.",
+                "Cambiar Usuario", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                _authService.Logout();
+                this.Close();
+                
+                Application.Restart();
+            }
+        }
+
         private void ShowAbout()
         {
-            MessageBox.Show("Inventory QR Manager v1.0\n\nSistema de gestión de inventario con códigos QR\nDesarrollado con .NET 6 y Windows Forms", 
+            var userInfo = _authService.CurrentUser != null 
+                ? $"Usuario: {_authService.CurrentUser.FullName}\nRol: {GetRoleDisplayName(_authService.CurrentUser.Role)}\n\n"
+                : "";
+
+            MessageBox.Show($"Inventory QR Manager v3.0\n\n{userInfo}" +
+                          "Sistema de gestión de inventario con códigos QR\n" +
+                          "📋 Incluye Historial de Movimientos\n" +
+                          "🌐 API REST integrada\n" +
+                          "👥 Sistema de usuarios\n" +
+                          "📊 Dashboard ejecutivo\n" +
+                          "Desarrollado con .NET 9 y Windows Forms", 
                 "Acerca de", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private string GetRoleDisplayName(UserRole role)
+        {
+            return role switch
+            {
+                UserRole.Admin => "Administrador",
+                UserRole.Manager => "Manager",
+                UserRole.User => "Usuario",
+                _ => "Desconocido"
+            };
         }
 
         private void UpdateQRPanelInfo(InventoryItem item)
         {
             if (itemInfoLabel == null)
             {
-                return; // No actualizar si el label no está configurado
+                return; 
             }
             
             var info = $"Item: {item.Name}\n" +
@@ -1232,7 +1323,7 @@ namespace InventoryQRManager.Views
             itemInfoLabel.Text = info;
         }
 
-        // Controles
+        
         private DataGridView dataGridView;
         private PictureBox qrPictureBox;
         private Label itemInfoLabel;

@@ -201,7 +201,7 @@ namespace InventoryQRManager.Services
             }
             catch
             {
-                // Si hay error, usar configuración por defecto
+              
             }
 
             return new AppSettings();
@@ -219,7 +219,7 @@ namespace InventoryQRManager.Services
             }
             catch
             {
-                // Error al guardar configuración
+               
             }
         }
     }

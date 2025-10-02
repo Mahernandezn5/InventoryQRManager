@@ -10,6 +10,7 @@ namespace InventoryQRManager.Views
     {
         private readonly InventoryService _inventoryService;
         private readonly QRCodeService _qrCodeService;
+        private readonly HistoryService _historyService;
         private readonly InventoryItem? _item;
         private readonly bool _isEdit;
 
@@ -17,12 +18,13 @@ namespace InventoryQRManager.Views
         {
             _inventoryService = new InventoryService();
             _qrCodeService = new QRCodeService();
+            _historyService = new HistoryService();
             _item = item;
             _isEdit = item != null;
             
             InitializeComponent();
             
-            // Aplicar tema profesional
+           
             ApplyProfessionalTheme();
             
             LoadData();
@@ -32,7 +34,7 @@ namespace InventoryQRManager.Views
         {
             this.SuspendLayout();
             
-            // Configurar el formulario
+            
             this.Text = _isEdit ? "Editar Item - Inventory QR Manager" : "Nuevo Item - Inventory QR Manager";
             this.Size = new Size(550, 650);
             this.StartPosition = FormStartPosition.CenterParent;
@@ -42,7 +44,7 @@ namespace InventoryQRManager.Views
             this.BackColor = Color.FromArgb(248, 249, 250);
             this.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
 
-            // Crear controles
+           
             CreateControls();
             
             this.ResumeLayout(false);
@@ -56,7 +58,7 @@ namespace InventoryQRManager.Views
             int controlWidth = 300;
             int spacing = 30;
 
-            // Nombre
+            
             var nameLabel = new Label();
             nameLabel.Text = "Nombre:";
             nameLabel.Location = new Point(20, yPosition);
@@ -70,7 +72,7 @@ namespace InventoryQRManager.Views
 
             yPosition += spacing;
 
-            // Descripción
+           
             var descriptionLabel = new Label();
             descriptionLabel.Text = "Descripción:";
             descriptionLabel.Location = new Point(20, yPosition);
@@ -84,7 +86,7 @@ namespace InventoryQRManager.Views
 
             yPosition += spacing;
 
-            // SKU
+            
             var skuLabel = new Label();
             skuLabel.Text = "SKU:";
             skuLabel.Location = new Point(20, yPosition);
@@ -98,7 +100,7 @@ namespace InventoryQRManager.Views
 
             yPosition += spacing;
 
-            // Cantidad
+            
             var quantityLabel = new Label();
             quantityLabel.Text = "Cantidad:";
             quantityLabel.Location = new Point(20, yPosition);
@@ -114,7 +116,7 @@ namespace InventoryQRManager.Views
 
             yPosition += spacing;
 
-            // Precio
+            
             var priceLabel = new Label();
             priceLabel.Text = "Precio:";
             priceLabel.Location = new Point(20, yPosition);
@@ -131,7 +133,7 @@ namespace InventoryQRManager.Views
 
             yPosition += spacing;
 
-            // Categoría
+            
             var categoryLabel = new Label();
             categoryLabel.Text = "Categoría:";
             categoryLabel.Location = new Point(20, yPosition);
@@ -146,7 +148,7 @@ namespace InventoryQRManager.Views
 
             yPosition += spacing;
 
-            // Ubicación
+            
             var locationLabel = new Label();
             locationLabel.Text = "Ubicación:";
             locationLabel.Location = new Point(20, yPosition);
@@ -161,7 +163,7 @@ namespace InventoryQRManager.Views
 
             yPosition += spacing;
 
-            // Código QR
+            
             var qrLabel = new Label();
             qrLabel.Text = "Código QR:";
             qrLabel.Location = new Point(20, yPosition);
@@ -183,7 +185,7 @@ namespace InventoryQRManager.Views
 
             yPosition += spacing + 10;
 
-            // Botones
+            
             var saveButton = new Button();
             saveButton.Text = "Guardar";
             saveButton.Location = new Point(200, yPosition);
@@ -205,20 +207,20 @@ namespace InventoryQRManager.Views
                 descriptionTextBox == null || skuTextBox == null || quantityNumericUpDown == null || 
                 priceNumericUpDown == null || qrTextBox == null)
             {
-                return; // No cargar si los controles no están configurados
+                return; 
             }
             
-            // Cargar categorías
+            
             var categories = _inventoryService.GetCategories();
             categoryComboBox.Items.Clear();
             categoryComboBox.Items.AddRange(categories.ToArray());
 
-            // Cargar ubicaciones
+            
             var locations = _inventoryService.GetLocations();
             locationComboBox.Items.Clear();
             locationComboBox.Items.AddRange(locations.ToArray());
 
-            // Si es edición, cargar datos del item
+            
             if (_isEdit && _item != null)
             {
                 nameTextBox.Text = _item.Name;
@@ -232,7 +234,7 @@ namespace InventoryQRManager.Views
             }
             else
             {
-                // Generar código QR automáticamente para nuevos items
+                
                 GenerateQRCode();
             }
         }
@@ -246,7 +248,7 @@ namespace InventoryQRManager.Views
         {
             if (skuTextBox == null || nameTextBox == null || qrTextBox == null)
             {
-                return; // No generar si los controles no están configurados
+                return; 
             }
             
             try
@@ -289,11 +291,21 @@ namespace InventoryQRManager.Views
                     bool success;
                     if (_isEdit)
                     {
+                       
                         success = _inventoryService.UpdateItem(item);
+                        if (success)
+                        {
+                            _historyService.RecordAction(item, HistoryAction.UPDATE, "Actualización manual");
+                        }
                     }
                     else
                     {
+                        
                         success = _inventoryService.AddItem(item);
+                        if (success)
+                        {
+                            _historyService.RecordAction(item, HistoryAction.CREATE, "Item creado desde interfaz");
+                        }
                     }
 
                     if (success)
@@ -301,7 +313,7 @@ namespace InventoryQRManager.Views
                         MessageBox.Show(_isEdit ? "Item actualizado correctamente." : "Item agregado correctamente.", 
                             "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         
-                        // Limpiar campos para permitir agregar otro item
+                        
                         if (!_isEdit)
                         {
                             ClearFields();
@@ -359,7 +371,7 @@ namespace InventoryQRManager.Views
                 return false;
             }
 
-            // Verificar si el SKU ya existe (solo para nuevos items)
+            
             if (!_isEdit)
             {
                 var existingItem = _inventoryService.GetItemBySKU(skuTextBox.Text.Trim());
@@ -376,10 +388,10 @@ namespace InventoryQRManager.Views
 
         private void ApplyProfessionalTheme()
         {
-            // Aplicar tema profesional a todo el formulario
+            
             ThemeService.ApplyTheme(this);
             
-            // Aplicar estilos específicos a los botones
+            
             ApplyButtonStyles();
         }
 
@@ -389,10 +401,10 @@ namespace InventoryQRManager.Views
             
             if (this.Controls == null)
             {
-                return; // No aplicar estilos si los controles no están configurados
+                return; 
             }
             
-            // Buscar y aplicar estilos a todos los botones
+            
             foreach (Control control in this.Controls)
             {
                 if (control is Button button)
@@ -431,7 +443,7 @@ namespace InventoryQRManager.Views
                 quantityNumericUpDown == null || priceNumericUpDown == null || 
                 categoryComboBox == null || locationComboBox == null || qrTextBox == null)
             {
-                return; // No limpiar si los controles no están configurados
+                return; 
             }
             
             nameTextBox.Clear();
@@ -444,7 +456,7 @@ namespace InventoryQRManager.Views
             qrTextBox.Clear();
         }
 
-        // Controles
+        
         private TextBox nameTextBox;
         private TextBox descriptionTextBox;
         private TextBox skuTextBox;

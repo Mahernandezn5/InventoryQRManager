@@ -15,7 +15,6 @@ namespace InventoryQRManager.Views
         {
             _reportService = new ReportService();
             InitializeComponent();
-            // Cargar reportes después de que se hayan configurado los controles
             this.Load += (s, e) => LoadReports();
         }
 
@@ -23,7 +22,6 @@ namespace InventoryQRManager.Views
         {
             this.SuspendLayout();
             
-            // Configurar el formulario
             this.Text = "Reportes y Estadísticas";
             this.Size = new Size(1200, 800);
             this.StartPosition = FormStartPosition.CenterParent;
@@ -39,14 +37,12 @@ namespace InventoryQRManager.Views
 
         private void CreateControls()
         {
-            // Panel superior con botones
             var topPanel = new Panel();
             topPanel.Dock = DockStyle.Top;
             topPanel.Height = 60;
             topPanel.BackColor = Color.LightGray;
             this.Controls.Add(topPanel);
 
-            // Título
             var titleLabel = new Label();
             titleLabel.Text = "Reportes y Estadísticas";
             titleLabel.Font = new Font("Arial", 16, FontStyle.Bold);
@@ -54,7 +50,6 @@ namespace InventoryQRManager.Views
             titleLabel.Size = new Size(300, 30);
             topPanel.Controls.Add(titleLabel);
 
-            // Botones de reportes
             var summaryButton = new Button();
             summaryButton.Text = "Resumen General";
             summaryButton.Location = new Point(400, 15);
@@ -83,13 +78,11 @@ namespace InventoryQRManager.Views
             lowStockButton.Click += LowStockButton_Click;
             topPanel.Controls.Add(lowStockButton);
 
-            // Panel de contenido
             contentPanel = new Panel();
             contentPanel.Dock = DockStyle.Fill;
             contentPanel.BackColor = Color.White;
             this.Controls.Add(contentPanel);
 
-            // Panel inferior con botones
             var bottomPanel = new Panel();
             bottomPanel.Dock = DockStyle.Bottom;
             bottomPanel.Height = 50;
@@ -160,13 +153,11 @@ namespace InventoryQRManager.Views
 
         private void ExportButton_Click(object sender, EventArgs e)
         {
-            // Funcionalidad de exportación
             MessageBox.Show("Funcionalidad de exportación en desarrollo.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void PrintButton_Click(object sender, EventArgs e)
         {
-            // Funcionalidad de impresión
             MessageBox.Show("Funcionalidad de impresión en desarrollo.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
@@ -179,7 +170,7 @@ namespace InventoryQRManager.Views
         {
             if (contentPanel == null)
             {
-                return; // No mostrar reporte si el panel de contenido no está configurado
+                return; 
             }
             
             contentPanel.Controls.Clear();
@@ -205,7 +196,6 @@ namespace InventoryQRManager.Views
 
                 int yPosition = 120;
 
-                // Crear tarjetas de resumen
                 CreateSummaryCard("Total de Items", summary.TotalItems.ToString(), Color.Blue, 50, yPosition);
                 CreateSummaryCard("Cantidad Total", summary.TotalQuantity.ToString(), Color.Green, 250, yPosition);
                 CreateSummaryCard("Valor Total", summary.TotalValue.ToString("C2"), Color.Orange, 450, yPosition);
@@ -214,7 +204,6 @@ namespace InventoryQRManager.Views
 
                 yPosition += 120;
 
-                // Tabla detallada
                 var detailLabel = new Label();
                 detailLabel.Text = "DETALLES POR CATEGORÍA";
                 detailLabel.Font = new Font("Arial", 14, FontStyle.Bold);
@@ -237,7 +226,7 @@ namespace InventoryQRManager.Views
         {
             if (contentPanel == null)
             {
-                return; // No mostrar reporte si el panel de contenido no está configurado
+                return; 
             }
             
             contentPanel.Controls.Clear();
@@ -273,7 +262,7 @@ namespace InventoryQRManager.Views
         {
             if (contentPanel == null)
             {
-                return; // No mostrar reporte si el panel de contenido no está configurado
+                return; 
             }
             
             contentPanel.Controls.Clear();
@@ -309,7 +298,7 @@ namespace InventoryQRManager.Views
         {
             if (contentPanel == null)
             {
-                return; // No mostrar reporte si el panel de contenido no está configurado
+                return; 
             }
             
             contentPanel.Controls.Clear();
@@ -345,7 +334,7 @@ namespace InventoryQRManager.Views
         {
             if (contentPanel == null)
             {
-                return; // No crear tarjeta si el panel de contenido no está configurado
+                return; 
             }
             
             var card = new Panel();
@@ -378,7 +367,7 @@ namespace InventoryQRManager.Views
         {
             if (contentPanel == null)
             {
-                return; // No crear tabla si el panel de contenido no está configurado
+                return; 
             }
             
             var table = new DataGridView();
@@ -398,7 +387,7 @@ namespace InventoryQRManager.Views
             table.Columns["TotalValue"].DefaultCellStyle.Format = "C2";
             table.Columns["AveragePrice"].DefaultCellStyle.Format = "C2";
             
-            // Configurar anchos fijos
+            
             table.Columns["Category"].Width = 200;
             table.Columns["ItemsCount"].Width = 80;
             table.Columns["TotalQuantity"].Width = 120;
@@ -423,7 +412,7 @@ namespace InventoryQRManager.Views
         {
             if (contentPanel == null)
             {
-                return; // No crear tabla si el panel de contenido no está configurado
+                return; 
             }
             
             var table = new DataGridView();
@@ -441,7 +430,7 @@ namespace InventoryQRManager.Views
 
             table.Columns["TotalValue"].DefaultCellStyle.Format = "C2";
             
-            // Configurar anchos fijos
+            
             table.Columns["Location"].Width = 200;
             table.Columns["ItemsCount"].Width = 80;
             table.Columns["TotalQuantity"].Width = 120;
@@ -464,7 +453,7 @@ namespace InventoryQRManager.Views
         {
             if (contentPanel == null)
             {
-                return; // No crear tabla si el panel de contenido no está configurado
+                return; 
             }
             
             var table = new DataGridView();
@@ -491,7 +480,6 @@ namespace InventoryQRManager.Views
                     item.Location
                 );
 
-                // Resaltar filas con stock muy bajo
                 if (item.Quantity <= 5)
                 {
                     table.Rows[row].DefaultCellStyle.BackColor = Color.LightPink;
@@ -509,7 +497,7 @@ namespace InventoryQRManager.Views
         {
             if (contentPanel == null)
             {
-                return; // No mostrar error si el panel de contenido no está configurado
+                return; 
             }
             
             var errorLabel = new Label();
@@ -521,7 +509,6 @@ namespace InventoryQRManager.Views
             contentPanel.Controls.Add(errorLabel);
         }
 
-        // Controles
         private Panel contentPanel;
     }
 }
