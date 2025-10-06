@@ -75,7 +75,7 @@ namespace InventoryQRManager.Data
                     PasswordHash TEXT NOT NULL,
                     FirstName TEXT,
                     LastName TEXT,
-                    Role INTEGER DEFAULT 3,
+                    Role INTEGER DEFAULT 2,
                     IsActive INTEGER DEFAULT 1,
                     CreatedDate TEXT NOT NULL,
                     LastLoginDate TEXT
@@ -144,7 +144,7 @@ namespace InventoryQRManager.Data
             using var connection = GetConnection();
             connection.Open();
             
-            var query = "SELECT * FROM Users WHERE IsActive = 1";
+            var query = "SELECT * FROM Users";
             using var command = new SQLiteCommand(query, connection);
             using var reader = command.ExecuteReader();
             

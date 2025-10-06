@@ -20,14 +20,13 @@ namespace InventoryQRManager.Views
         private readonly BackupService _backupService;
         private readonly SettingsService _settingsService;
         private readonly ApiTestService _apiTestService;
-        private readonly AuthService _authService;
+        private AuthService _authService;
         private readonly DatabaseContext _context;
         private List<InventoryItem> _inventoryItems;
 
         public MainForm()
         {
             _context = new DatabaseContext();
-            _authService = new AuthService(_context);
             _inventoryService = new InventoryService();
             _qrCodeService = new QRCodeService();
             _historyService = new HistoryService();
@@ -82,16 +81,22 @@ namespace InventoryQRManager.Views
             var menuStrip = new MenuStrip();
             
             var fileMenu = new ToolStripMenuItem("&Archivo");
-            fileMenu.DropDownItems.Add("&Importar", null, (s, e) => ImportData());
-            fileMenu.DropDownItems.Add("&Exportar", null, (s, e) => ExportData());
-            fileMenu.DropDownItems.Add(new ToolStripSeparator());
+            if (_authService.HasPermission(UserRole.Admin))
+            {
+                fileMenu.DropDownItems.Add("&Importar", null, (s, e) => ImportData());
+                fileMenu.DropDownItems.Add("&Exportar", null, (s, e) => ExportData());
+                fileMenu.DropDownItems.Add(new ToolStripSeparator());
+            }
             fileMenu.DropDownItems.Add("&Salir", null, (s, e) => this.Close());
             
             var inventoryMenu = new ToolStripMenuItem("&Inventario");
             inventoryMenu.DropDownItems.Add("&Ver Todos", null, (s, e) => LoadInventoryData());
             inventoryMenu.DropDownItems.Add("&Buscar Avanzada", null, (s, e) => ShowAdvancedSearch());
-            inventoryMenu.DropDownItems.Add("&Reportes y Estadísticas", null, (s, e) => ShowReports());
-            inventoryMenu.DropDownItems.Add(new ToolStripSeparator());
+            if (_authService.HasPermission(UserRole.Admin))
+            {
+                inventoryMenu.DropDownItems.Add("&Reportes y Estadísticas", null, (s, e) => ShowReports());
+                inventoryMenu.DropDownItems.Add(new ToolStripSeparator());
+            }
             inventoryMenu.DropDownItems.Add("&Stock Bajo", null, (s, e) => ShowLowStockItems());
             
             var qrMenu = new ToolStripMenuItem("&Códigos QR");
@@ -99,16 +104,24 @@ namespace InventoryQRManager.Views
             qrMenu.DropDownItems.Add("&Imprimir QR", null, (s, e) => PrintQRCode());
             
             var toolsMenu = new ToolStripMenuItem("&Herramientas");
-            toolsMenu.DropDownItems.Add("📊 &Dashboard Ejecutivo", null, (s, e) => ShowDashboard());
-            toolsMenu.DropDownItems.Add(new ToolStripSeparator());
-            toolsMenu.DropDownItems.Add("👥 &Gestión de Usuarios", null, (s, e) => ShowUserManagement());
-            toolsMenu.DropDownItems.Add("🔐 &Cambiar Usuario", null, (s, e) => ChangeUser());
-            toolsMenu.DropDownItems.Add(new ToolStripSeparator());
-            toolsMenu.DropDownItems.Add("&Configuración", null, (s, e) => ShowSettings());
-            toolsMenu.DropDownItems.Add("&Backup", null, (s, e) => ShowBackupDialog());
-            toolsMenu.DropDownItems.Add(new ToolStripSeparator());
-            toolsMenu.DropDownItems.Add("🌐 &Probar API REST", null, (s, e) => TestApiConnection());
-            toolsMenu.DropDownItems.Add("📋 &Historial de Movimientos", null, (s, e) => ShowHistory());
+            if (_authService.HasPermission(UserRole.Admin))
+            {
+                toolsMenu.DropDownItems.Add("📊 &Dashboard Ejecutivo", null, (s, e) => ShowDashboard());
+                toolsMenu.DropDownItems.Add(new ToolStripSeparator());
+                toolsMenu.DropDownItems.Add("👥 &Gestión de Usuarios", null, (s, e) => ShowUserManagement());
+                toolsMenu.DropDownItems.Add("👥 &Registrar Empleado", null, (s, e) => ShowRegisterEmployee());
+                toolsMenu.DropDownItems.Add("🔐 &Cambiar Usuario", null, (s, e) => ChangeUser());
+                toolsMenu.DropDownItems.Add(new ToolStripSeparator());
+                toolsMenu.DropDownItems.Add("&Configuración", null, (s, e) => ShowSettings());
+                toolsMenu.DropDownItems.Add("&Backup", null, (s, e) => ShowBackupDialog());
+                toolsMenu.DropDownItems.Add(new ToolStripSeparator());
+                toolsMenu.DropDownItems.Add("🌐 &Probar API REST", null, (s, e) => TestApiConnection());
+                toolsMenu.DropDownItems.Add("📋 &Historial de Movimientos", null, (s, e) => ShowHistory());
+            }
+            else
+            {
+                toolsMenu.DropDownItems.Add("🔐 &Cambiar Usuario", null, (s, e) => ChangeUser());
+            }
             
             var helpMenu = new ToolStripMenuItem("&Ayuda");
             helpMenu.DropDownItems.Add("&Acerca de", null, (s, e) => ShowAbout());
@@ -126,7 +139,7 @@ namespace InventoryQRManager.Views
             toolStrip.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
             toolStrip.Padding = new Padding(10, 5, 10, 5);
             
-            var primaryButtonColor = Color.FromArgb(41, 128, 185); o
+            var primaryButtonColor = Color.FromArgb(41, 128, 185);
             
             var newButton = new ToolStripButton("➕ Nuevo Item", null, (s, e) => ShowAddItemForm());
             newButton.BackColor = primaryButtonColor;
@@ -146,23 +159,13 @@ namespace InventoryQRManager.Views
             var separator1 = new ToolStripSeparator();
             separator1.BackColor = Color.FromArgb(149, 165, 166);
             
-            
-            var historyButton = new ToolStripButton("📋 Historial", null, (s, e) => ShowHistory());
-            historyButton.BackColor = Color.FromArgb(155, 89, 182);
-            historyButton.ForeColor = Color.White;
-            historyButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            
-            var separator2 = new ToolStripSeparator();
-            separator2.BackColor = Color.FromArgb(149, 165, 166);
-            
             var refreshButton = new ToolStripButton("🔄 Actualizar", null, (s, e) => LoadInventoryData());
             refreshButton.BackColor = primaryButtonColor;
             refreshButton.ForeColor = Color.White;
             refreshButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             
             toolStrip.Items.AddRange(new ToolStripItem[] { 
-                newButton, editButton, deleteButton, separator1, 
-                historyButton, separator2, refreshButton 
+                newButton, editButton, deleteButton, separator1, refreshButton 
             });
             
             this.Controls.Add(toolStrip);
@@ -1222,6 +1225,7 @@ namespace InventoryQRManager.Views
             
             if (result == DialogResult.OK)
             {
+                _authService = loginForm.GetAuthService();
                 return true;
             }
             
@@ -1246,10 +1250,10 @@ namespace InventoryQRManager.Views
         {
             try
             {
-                if (!_authService.HasPermission(UserRole.Manager))
+                if (!_authService.HasPermission(UserRole.Admin))
                 {
                     MessageBox.Show("⚠️ No tiene permisos para gestionar usuarios.\n\n" +
-                                  "Solo los Managers y Administradores pueden acceder a esta función.",
+                                  "Solo los Administradores pueden acceder a esta función.",
                         "Permisos Insuficientes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
@@ -1260,6 +1264,28 @@ namespace InventoryQRManager.Views
             catch (Exception ex)
             {
                 MessageBox.Show($"Error abriendo gestión de usuarios: {ex.Message}", "Error", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ShowRegisterEmployee()
+        {
+            try
+            {
+                if (!_authService.HasPermission(UserRole.Admin))
+                {
+                    MessageBox.Show("⚠️ No tiene permisos para registrar empleados.\n\n" +
+                                  "Solo los Administradores pueden acceder a esta función.",
+                        "Permisos Insuficientes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var registerEmployeeForm = new RegisterEmployeeForm();
+                registerEmployeeForm.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error abriendo registro de empleados: {ex.Message}", "Error", 
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -1300,8 +1326,7 @@ namespace InventoryQRManager.Views
             return role switch
             {
                 UserRole.Admin => "Administrador",
-                UserRole.Manager => "Manager",
-                UserRole.User => "Usuario",
+                UserRole.Employee => "Empleado",
                 _ => "Desconocido"
             };
         }

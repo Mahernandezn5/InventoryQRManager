@@ -71,7 +71,7 @@ namespace InventoryQRManager.Views
             var categoriesPanel = CreateMetricPanel("📂 Categorías", "0", Color.FromArgb(0, 123, 255), new Point(860, 20));
 
             _totalItemsLabel = (Label)totalItemsPanel.Controls[1];
-            _totalValueLabel = (Label)totalItemsPanel.Controls[1];
+            _totalValueLabel = (Label)totalValuePanel.Controls[1];
             _lowStockLabel = (Label)lowStockPanel.Controls[1];
             _categoriesLabel = (Label)categoriesPanel.Controls[1];
 
@@ -154,7 +154,7 @@ namespace InventoryQRManager.Views
 
             var userInfoLabel = new Label
             {
-                Text = $"👤 Usuario: {_authService.CurrentUser?.FullName} | Rol: {GetRoleDisplayName(_authService.CurrentUser?.Role ?? UserRole.User)} | Última actualización: {DateTime.Now:HH:mm:ss}",
+                Text = $"👤 Usuario: {_authService.CurrentUser?.FullName} | Rol: {GetRoleDisplayName(_authService.CurrentUser?.Role ?? UserRole.Employee)} | Última actualización: {DateTime.Now:HH:mm:ss}",
                 Font = new Font("Segoe UI", 10),
                 ForeColor = Color.FromArgb(52, 58, 64),
                 Size = new Size(1000, 30),
@@ -347,8 +347,7 @@ namespace InventoryQRManager.Views
             return role switch
             {
                 UserRole.Admin => "Administrador",
-                UserRole.Manager => "Manager",
-                UserRole.User => "Usuario",
+                UserRole.Employee => "Empleado",
                 _ => "Desconocido"
             };
         }

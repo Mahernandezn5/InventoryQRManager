@@ -99,14 +99,27 @@ namespace InventoryQRManager.Views
             {
                 Text = "👥 Usuarios por defecto:\n" +
                       "• admin / admin123 (Administrador)\n" +
-                      "• manager / manager123 (Manager)\n" +
-                      "• user / user123 (Usuario)",
+                      "• empleado / empleado123 (Empleado)",
                 Font = new Font("Segoe UI", 9),
                 ForeColor = Color.FromArgb(108, 117, 125),
-                Size = new Size(340, 80),
+                Size = new Size(340, 60),
                 Location = new Point(30, 290),
                 TextAlign = ContentAlignment.MiddleLeft
             };
+
+            var forgotPasswordButton = new Button
+            {
+                Text = "🔐 ¿Olvidaste tu contraseña?",
+                Font = new Font("Segoe UI", 9),
+                ForeColor = Color.FromArgb(52, 144, 220),
+                BackColor = Color.Transparent,
+                Size = new Size(300, 30),
+                Location = new Point(30, 360),
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
+            };
+            forgotPasswordButton.FlatAppearance.BorderSize = 0;
+
 
             var cancelButton = new Button
             {
@@ -115,13 +128,14 @@ namespace InventoryQRManager.Views
                 ForeColor = Color.FromArgb(108, 117, 125),
                 BackColor = Color.FromArgb(233, 236, 239),
                 Size = new Size(300, 35),
-                Location = new Point(30, 390),
+                Location = new Point(30, 400),
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand
             };
             cancelButton.FlatAppearance.BorderSize = 0;
 
             loginButton.Click += (s, e) => LoginButton_Click(usernameTextBox.Text, passwordTextBox.Text);
+            forgotPasswordButton.Click += (s, e) => ShowForgotPasswordForm();
             cancelButton.Click += (s, e) => this.Close();
             
             usernameTextBox.KeyPress += (s, e) => { if (e.KeyChar == (char)Keys.Enter) passwordTextBox.Focus(); };
@@ -129,7 +143,7 @@ namespace InventoryQRManager.Views
 
             mainPanel.Controls.AddRange(new Control[] {
                 titleLabel, usernameLabel, usernameTextBox, passwordLabel, passwordTextBox,
-                loginButton, infoLabel, cancelButton
+                loginButton, infoLabel, forgotPasswordButton, cancelButton
             });
 
             this.Controls.Add(mainPanel);
@@ -147,10 +161,15 @@ namespace InventoryQRManager.Views
 
             try
             {
+                // Debug: Mostrar información de usuarios
+                _authService.DebugUsers();
+                
                 if (_authService.Login(username, password))
                 {
-                    MessageBox.Show($"✅ ¡Bienvenido, {_authService.CurrentUser?.FullName}!\n\n" +
-                                  $"Rol: {GetRoleDisplayName(_authService.CurrentUser?.Role ?? UserRole.User)}",
+                    var currentUser = _authService.CurrentUser;
+                    MessageBox.Show($"✅ ¡Bienvenido, {currentUser?.FullName}!\n\n" +
+                                  $"Rol: {GetRoleDisplayName(currentUser?.Role ?? UserRole.Employee)}\n" +
+                                  $"Usuario: {currentUser?.Username}",
                         "Login Exitoso", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     this.DialogResult = DialogResult.OK;
@@ -158,8 +177,30 @@ namespace InventoryQRManager.Views
                 }
                 else
                 {
-                    MessageBox.Show("❌ Usuario o contraseña incorrectos.\n\n" +
-                                  "Verifique sus credenciales e intente nuevamente.",
+                    // Debug: Mostrar información adicional en caso de error
+                    var context = new DatabaseContext();
+                    var allUsers = context.Users.ToList();
+                    var userExists = allUsers.Any(u => u.Username == username);
+                    var userInfo = userExists ? 
+                        allUsers.First(u => u.Username == username) : null;
+                    
+                    var errorMessage = $"❌ Usuario o contraseña incorrectos.\n\n" +
+                                      $"Debug Info:\n" +
+                                      $"Usuario existe: {userExists}\n";
+                    
+                    if (userInfo != null)
+                    {
+                        errorMessage += $"Usuario encontrado: {userInfo.Username}\n" +
+                                      $"Rol: {userInfo.Role}\n" +
+                                      $"Activo: {userInfo.IsActive}\n" +
+                                      $"Hash almacenado: {userInfo.PasswordHash}\n";
+                    }
+                    
+                    errorMessage += $"\nCredenciales por defecto:\n" +
+                                  $"👑 Administrador: admin / admin123\n" +
+                                  $"👤 Empleado: empleado / empleado123";
+                    
+                    MessageBox.Show(errorMessage,
                         "Error de Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
@@ -170,13 +211,27 @@ namespace InventoryQRManager.Views
             }
         }
 
+        private void ShowForgotPasswordForm()
+        {
+            try
+            {
+                var forgotPasswordForm = new ForgotPasswordForm();
+                forgotPasswordForm.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error abriendo formulario de recuperación: {ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
         private string GetRoleDisplayName(UserRole role)
         {
             return role switch
             {
                 UserRole.Admin => "Administrador",
-                UserRole.Manager => "Manager",
-                UserRole.User => "Usuario",
+                UserRole.Employee => "Empleado",
                 _ => "Desconocido"
             };
         }

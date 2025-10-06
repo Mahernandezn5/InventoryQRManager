@@ -24,7 +24,7 @@ namespace InventoryQRManager.Models
         [StringLength(50)]
         public string LastName { get; set; } = string.Empty;
         
-        public UserRole Role { get; set; } = UserRole.User;
+        public UserRole Role { get; set; } = UserRole.Employee;
         
         public bool IsActive { get; set; } = true;
         
@@ -38,7 +38,6 @@ namespace InventoryQRManager.Models
     public enum UserRole
     {
         Admin = 1,
-        Manager = 2,
-        User = 3
+        Employee = 2
     }
 }

@@ -7,13 +7,13 @@ namespace InventoryQRManager.Views
 {
     public partial class AddEditUserForm : Form
     {
-        private TextBox _usernameTextBox;
-        private TextBox _emailTextBox;
-        private TextBox _firstNameTextBox;
-        private TextBox _lastNameTextBox;
-        private ComboBox _roleComboBox;
-        private Button _saveButton;
-        private Button _cancelButton;
+        private TextBox _usernameTextBox = null!;
+        private TextBox _emailTextBox = null!;
+        private TextBox _firstNameTextBox = null!;
+        private TextBox _lastNameTextBox = null!;
+        private ComboBox _roleComboBox = null!;
+        private Button _saveButton = null!;
+        private Button _cancelButton = null!;
         private User? _user;
 
         public AddEditUserForm(User? user = null)
@@ -210,7 +210,7 @@ namespace InventoryQRManager.Views
             }
         }
 
-        private void SaveButton_Click(object sender, EventArgs e)
+        private void SaveButton_Click(object? sender, EventArgs e)
         {
             if (ValidateInput())
             {

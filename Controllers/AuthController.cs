@@ -161,7 +161,7 @@ namespace InventoryQRManager.Controllers
                     request.Password,
                     request.FirstName ?? "",
                     request.LastName ?? "",
-                    UserRole.User
+                    UserRole.Employee
                 );
 
                 if (success)

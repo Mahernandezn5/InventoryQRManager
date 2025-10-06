@@ -275,8 +275,7 @@ namespace InventoryQRManager.Views
             return role switch
             {
                 UserRole.Admin => "Administrador",
-                UserRole.Manager => "Manager",
-                UserRole.User => "Usuario",
+                UserRole.Employee => "Empleado",
                 _ => "Desconocido"
             };
         }
